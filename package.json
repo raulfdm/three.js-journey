@@ -1,0 +1,17 @@
+{
+  "name": "three.js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Raul Melo",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel ./lessons/**/*.html"
+  },
+  "dependencies": {
+    "parcel-bundler": "^1.12.4",
+    "three": "^0.126.1"
+  },
+  "resolutions": {
+    "@babel/preset-env": "7.13.8"
+  }
+}
