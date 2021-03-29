@@ -1,9 +1,18 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import * as dat from "dat.gui";
+
+const gui = new dat.GUI({});
+
+gui.addFolder("test");
 
 const scene = new THREE.Scene();
 
 const canvasEl = document.querySelector("#scene");
+
+const params = {
+  cubeColor: "#f0a",
+};
 
 const cursorCoordinates = {
   x: 0,
@@ -12,8 +21,21 @@ const cursorCoordinates = {
 
 // MESH
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: "#f0a" });
+const material = new THREE.MeshBasicMaterial({
+  color: params.cubeColor,
+  wireframe: true,
+});
+
 const mesh = new THREE.Mesh(geometry, material);
+
+gui.add(mesh.position, "x").min(-10).max(10).step(0.01);
+gui.add(mesh.position, "y").min(-10).max(10).step(0.01);
+gui.add(mesh.position, "z").min(-10).max(10).step(0.01);
+
+gui.add(material, "wireframe");
+gui
+  .addColor(params, "cubeColor")
+  .onChange(() => material.color.set(params.cubeColor));
 
 scene.add(mesh);
 
