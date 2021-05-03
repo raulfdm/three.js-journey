@@ -14,4 +14,4 @@ Then, run the live server:
 yarn dev
 ```
 
-You'll be able to see it like: `http://localhost:1234/01/index.html`, `http://localhost:1234/02/index.html` and so on.
+You'll be able to see it like: `http://localhost:3000/01`, `http://localhost:1234/02` and so on.
