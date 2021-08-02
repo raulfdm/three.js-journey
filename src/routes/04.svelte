@@ -2,8 +2,7 @@
   import * as THREE from 'three';
   import { onMount } from 'svelte';
 
-  // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-  import { OrbitControls } from 'three/examples/js/controls/OrbitControls';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
   export let canvas;
 

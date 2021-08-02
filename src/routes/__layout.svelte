@@ -6,7 +6,7 @@
     padding: 0;
   }
 
-  canvas {
+  :global(canvas) {
     width: 0;
     height: 0;
   }

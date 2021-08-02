@@ -4,4 +4,5 @@ node_modules
 /build
 /functions
 
-/old
+.svelte-kit
+.vercel_build_output

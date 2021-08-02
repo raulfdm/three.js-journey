@@ -1,7 +1,11 @@
 /** @type {import('@sveltejs/kit').Config} */
-module.exports = {
+
+import vercel from '@sveltejs/adapter-vercel';
+
+export default {
   kit: {
     // hydrate the <div id="svelte"> element in src/app.html
-    target: '#svelte'
+    target: '#svelte',
+    adapter: vercel()
   }
 };
