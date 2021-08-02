@@ -10,12 +10,10 @@
     estree-walker "^2.0.1"
     picomatch "^2.2.2"
 
-"@sveltejs/adapter-vercel@next":
-  version "1.0.0-next.27"
-  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-vercel/-/adapter-vercel-1.0.0-next.27.tgz#0e8449b5550136c09976a51dc971fb481d06c25c"
-  integrity sha512-KiGDJXgjkj3MJvmQLXpE7pfQnN7dVx8pPgqcrFp8yziFrLMrvluklKmNqNei6JivQn5JVYxLojRgHpik1fdIOw==
-  dependencies:
-    esbuild "^0.12.5"
+"@sveltejs/adapter-static@next":
+  version "1.0.0-next.14"
+  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-static/-/adapter-static-1.0.0-next.14.tgz#ac2fb9fdde7a0d8d3a10ecdc0232a71b2592a59a"
+  integrity sha512-iIQduHB2lmS1nbkC0dDw6alk0+SMmTV9ScDSxjzU8guJ+//cPKHVpqvXRt0Egu8uuv5vOebAUEgD+pzX7LNYJQ==
 
 "@sveltejs/kit@next":
   version "1.0.0-next.140"
@@ -173,7 +171,7 @@ detect-indent@^6.0.0:
   resolved "https://registry.yarnpkg.com/detect-indent/-/detect-indent-6.1.0.tgz#592485ebbbf6b3b1ab2be175c8393d04ca0d57e6"
   integrity sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==
 
-esbuild@^0.12.5, esbuild@^0.12.8:
+esbuild@^0.12.8:
   version "0.12.17"
   resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.12.17.tgz#5816f905c2905de0ebbc658860df7b5b48afbcd3"
   integrity sha512-GshKJyVYUnlSXIZj/NheC2O0Kblh42CS7P1wJyTbbIHevTG4jYMS9NNw8EOd8dDWD0dzydYHS01MpZoUcQXB4g==
