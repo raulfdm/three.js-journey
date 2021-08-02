@@ -1,7 +1,7 @@
 <script>
   import * as THREE from 'three';
   import { onMount } from 'svelte';
-  import { getBaseSettings } from '../config/baseSettings';
+  import { getBaseSettings } from '../../config/baseSettings';
 
   export let canvas;
 
