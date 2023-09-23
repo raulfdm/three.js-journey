@@ -12,11 +12,17 @@ export type Props = {
     <meta name="generator" content={Astro.generator} />
     <title>{Astro.props.title}</title>
   </head>
-  <body>
-    <nav>
+  <body class="p-4">
+    <nav class="flex gap-2 p-2">
       <a href="/">Home</a>
       <a href="/lessons/03">03 - Basic Scene</a>
     </nav>
     <slot />
   </body>
 </html>
+
+<style lang="postcss">
+  nav a {
+    @apply underline;
+  }
+</style>
