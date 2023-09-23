@@ -1,29 +1,15 @@
 {
-  "name": "three.js-studies",
-  "version": "0.0.1",
+  "name": "",
   "type": "module",
+  "version": "0.0.1",
   "scripts": {
-    "dev": "svelte-kit dev",
-    "build": "svelte-kit build",
-    "preview": "svelte-kit preview",
-    "lint": "prettier --check .",
-    "format": "prettier --write ."
-  },
-  "devDependencies": {
-    "@sveltejs/adapter-static": "next",
-    "@sveltejs/kit": "next",
-    "@types/three": "^0.130.1",
-    "dat.gui": "^0.7.7",
-    "gasp": "^0.0.2",
-    "glob": "^7.1.7",
-    "prettier": "~2.3.2",
-    "prettier-plugin-svelte": "^2.3.1",
-    "svelte": "^3.34.0",
-    "svelte-check": "^2.0.0",
-    "three": "^0.131.1",
-    "vite": "^2.4.4"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "gsap": "^3.7.1"
+    "astro": "^3.1.2"
   }
 }
