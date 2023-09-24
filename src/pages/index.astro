@@ -3,5 +3,51 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout title="Home">
-  <h1>Learning ThreeJS with ThreeJS Journey</h1>
+  <main>
+    <h1 class="text-3xl font-bold">
+      Learning ThreeJS with <a
+        href="https://threejs-journey.com/"
+        class="underline inline-flex gap-1"
+      >
+        ThreeJS Journey
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="icon icon-tabler icon-tabler-external-link"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path
+            d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"
+          ></path>
+          <path d="M11 13l9 -9"></path>
+          <path d="M15 4h5v5"></path>
+        </svg>
+      </a>
+    </h1>
+
+    <nav class="mt-4">
+      <h2 class="text-xl font-semibold">Lessons</h2>
+      <ul class="flex gap-1 flex-col">
+        <li>
+          <a href="/lessons/03">03 - Basic Scene</a>
+        </li>
+        <li>
+          <a href="/lessons/05">05 - Object Transformation</a>
+        </li>
+      </ul>
+    </nav>
+  </main>
 </BaseLayout>
+
+<style lang="postcss">
+  li a {
+    @apply underline;
+  }
+</style>

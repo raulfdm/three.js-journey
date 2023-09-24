@@ -2,6 +2,8 @@
 export type Props = {
   title: string;
 };
+
+const isHome = Astro.url.pathname === "/";
 ---
 
 <html lang="en">
@@ -13,17 +15,16 @@ export type Props = {
     <title>{Astro.props.title}</title>
   </head>
   <body class="p-4">
-    <nav class="flex gap-2 p-2">
-      <a href="/">Home</a>
-      <a href="/lessons/03">03 - Basic Scene</a>
-    </nav>
+    {
+      isHome ? null : (
+        <nav class="py-2">
+          <a href="/" class="underline font-semibold">
+            Home
+          </a>
+        </nav>
+      )
+    }
     <slot />
     <canvas></canvas>
   </body>
 </html>
-
-<style lang="postcss">
-  nav a {
-    @apply underline;
-  }
-</style>
