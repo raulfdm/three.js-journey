@@ -1,5 +1,35 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const lessons: {
+  number: string;
+  title: string;
+}[] = [
+  {
+    number: "03",
+    title: "Basic Scene",
+  },
+  {
+    number: "05",
+    title: "Object Transformation",
+  },
+  {
+    number: "06",
+    title: "Animations",
+  },
+  {
+    number: "07",
+    title: "Cameras",
+  },
+  {
+    number: "08",
+    title: "Full Screen and resizing",
+  },
+  {
+    number: "09",
+    title: "Geometry",
+  },
+];
 ---
 
 <BaseLayout title="Home">
@@ -35,21 +65,17 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <nav class="mt-4">
       <h2 class="text-xl font-semibold">Lessons</h2>
       <ul class="flex gap-1 flex-col">
-        <li>
-          <a href="/lessons/03">03 - Basic Scene</a>
-        </li>
-        <li>
-          <a href="/lessons/05">05 - Object Transformation</a>
-        </li>
-        <li>
-          <a href="/lessons/06">06 - Animations</a>
-        </li>
-        <li>
-          <a href="/lessons/07">07 - Cameras</a>
-        </li>
-        <li>
-          <a href="/lessons/08">08 - Full Screen and resizing</a>
-        </li>
+        {
+          lessons.map(({ number, title }) => {
+            return (
+              <li>
+                <a href={`/lessons/${number}`}>
+                  {number} - {title}
+                </a>
+              </li>
+            );
+          })
+        }
       </ul>
     </nav>
   </main>
