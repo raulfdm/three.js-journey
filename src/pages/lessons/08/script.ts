@@ -7,13 +7,13 @@ if (typeof window !== "undefined") {
 }
 
 function render() {
-  const gui = new GUI();
-
   const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 
   if (!canvas) {
     throw new Error("No canvas found");
   }
+
+  const gui = new GUI();
 
   const cursor = {
     x: 0,
@@ -28,9 +28,31 @@ function render() {
     },
   };
 
+  window.addEventListener("resize", () => {
+    // Update the sizes
+    sizes.height = window.innerHeight;
+    sizes.width = window.innerWidth;
+
+    // Update the camera
+    camera.aspect = sizes.aspectRatio;
+    camera.updateProjectionMatrix();
+
+    // Update the renderer
+    renderer.setSize(sizes.width, sizes.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  });
+
   window.addEventListener("mousemove", (event) => {
     cursor.x = event.clientX / sizes.width - 0.5;
     cursor.y = event.clientY / sizes.height - 0.5;
+  });
+
+  window.addEventListener("dblclick", () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      canvas.requestFullscreen();
+    }
   });
 
   const scene = new THREE.Scene();
@@ -39,7 +61,7 @@ function render() {
   const redMaterial = new THREE.MeshBasicMaterial({ color: "red" });
 
   const cube = new THREE.Mesh(redCubeGeometry, redMaterial);
-  cube.material.wireframe = true;
+  // cube.material.wireframe = true;
 
   scene.add(cube);
 
@@ -57,6 +79,7 @@ function render() {
   });
 
   renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   function tick() {
     controls.update();
