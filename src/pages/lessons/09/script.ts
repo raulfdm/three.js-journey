@@ -57,11 +57,14 @@ function render() {
 
   const scene = new THREE.Scene();
 
-  const redCubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-  const redMaterial = new THREE.MeshBasicMaterial({ color: "red" });
+  // const redCubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+  const redSphere = new THREE.SphereGeometry(1, 62, 62);
 
-  const cube = new THREE.Mesh(redCubeGeometry, redMaterial);
-  // cube.material.wireframe = true;
+  const redMaterial = new THREE.MeshBasicMaterial({
+    color: "red",
+    wireframe: true,
+  });
+  const cube = new THREE.Mesh(redSphere, redMaterial);
 
   scene.add(cube);
 
