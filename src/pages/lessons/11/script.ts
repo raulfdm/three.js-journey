@@ -1,10 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
-// import doorColorTexture from "../../../assets/Door_Wood_001_basecolor.jpg";
-import doorColorTexture from "../../../assets/Door_Wood_001_basecolor.webp";
-import checkerboardImage from "../../../assets/checkerboard-8x8.png";
-import doorNormalTexture from "../../../assets/Door_Wood_001_normal.jpg";
+
+import doorColor from "../../../assets/textures/door/color.jpg";
 
 if (typeof window !== "undefined") {
   render();
@@ -25,7 +23,7 @@ function render() {
   // const texture = textureLoader.load(checkerboardImage.src);
 
   // const texture = textureLoader.load(doorColorTexture.src);
-  const texture = textureLoader.load(checkerboardImage.src);
+  const texture = textureLoader.load(doorColor.src);
   texture.generateMipmaps = false;
   texture.minFilter = THREE.NearestFilter;
   texture.magFilter = THREE.NearestFilter;
