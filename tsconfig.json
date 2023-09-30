@@ -4,6 +4,20 @@
     "verbatimModuleSyntax": true,
     "types": [
       "bun-types"
-    ]
-  }
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@/assets/*": [
+        "src/assets/*"
+      ],
+      "@/layouts/*": [
+        "src/layouts/*"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "@astrojs/ts-plugin"
+      },
+    ],
+  },
 }
