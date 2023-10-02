@@ -3,7 +3,22 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
 import doorAlpha from "@/assets/textures/door/alpha.jpg";
-// import doorAmbient from "@/assets/textures/door/ambientOcclusion.jpg";
+import doorOcclusion from "@/assets/textures/door/ambientOcclusion.jpg";
+import doorColor from "@/assets/textures/door/color.jpg";
+import doorHeight from "@/assets/textures/door/height.jpg";
+import doorMetalness from "@/assets/textures/door/metalness.jpg";
+import doorNormal from "@/assets/textures/door/normal.jpg";
+import doorRoughness from "@/assets/textures/door/roughness.jpg";
+
+import environmentPx from "@/assets/textures/environmentMaps/4/px.png";
+import environmentNx from "@/assets/textures/environmentMaps/4/nx.png";
+import environmentPy from "@/assets/textures/environmentMaps/4/py.png";
+import environmentNy from "@/assets/textures/environmentMaps/4/ny.png";
+import environmentPz from "@/assets/textures/environmentMaps/4/pz.png";
+import environmentNz from "@/assets/textures/environmentMaps/4/nz.png";
+
+import gradientImage from "@/assets/textures/gradients/5.jpg";
+import matcapImage from "@/assets/textures/matcaps/10.png";
 
 if (typeof window !== "undefined") {
   render();
@@ -51,40 +66,123 @@ function render() {
   const scene = new THREE.Scene();
 
   const textureLoader = new THREE.TextureLoader();
+  const cubeTextureLoader = new THREE.CubeTextureLoader();
 
-  // const doorAmbientOcclusionTexture = textureLoader.load(
-  //   doorAmbientOcclusion.src
-  // );
-  const doorBaseColorTexture = textureLoader.load(doorAlpha.src);
-  // const doorHeightTexture = textureLoader.load(doorHeight.src);
-  // const doorMetallicTexture = textureLoader.load(doorMetallic.src);
-  // const doorNormalTexture = textureLoader.load(doorNormal.src);
-  // const doorOpacityTexture = textureLoader.load(doorOpacity.src);
-  // const doorRoughnessTexture = textureLoader.load(doorRoughness.src);
+  const doorColorTexture = textureLoader.load(doorColor.src);
+  const doorAlphaTexture = textureLoader.load(doorAlpha.src);
+  const doorHeightTexture = textureLoader.load(doorHeight.src);
+  const doorMetalnessTexture = textureLoader.load(doorMetalness.src);
+  const doorNormalTexture = textureLoader.load(doorNormal.src);
+  const doorOcclusionTexture = textureLoader.load(doorOcclusion.src);
+  const doorRoughnessTexture = textureLoader.load(doorRoughness.src);
 
-  const material = new THREE.MeshBasicMaterial({
-    map: doorBaseColorTexture,
-  });
+  const gradientTexture = textureLoader.load(gradientImage.src);
+  gradientTexture.minFilter = THREE.NearestFilter;
+  gradientTexture.magFilter = THREE.NearestFilter;
+  gradientTexture.generateMipmaps = false;
+
+  const matcapTexture = textureLoader.load(matcapImage.src);
+
+  /**
+   * Environment Maps
+   */
+
+  const environmentTexture = cubeTextureLoader.load([
+    environmentPx.src,
+    environmentNx.src,
+    environmentPy.src,
+    environmentNy.src,
+    environmentPz.src,
+    environmentNz.src,
+  ]);
+
+  /**
+   * Lights
+   */
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+  scene.add(ambientLight);
+
+  const light = new THREE.PointLight(0xffffff, 50);
+  light.position.x = 2;
+  light.position.y = 3;
+  light.position.z = 4;
+  scene.add(light);
+
+  // const material = new THREE.MeshNormalMaterial();
+  // material.flatShading = true;
+
+  // const material = new THREE.MeshBasicMaterial();
+  // material.side = THREE.DoubleSide;
+  // material.map = doorColorTexture;
+  // material.alphaMap = doorAlphaTexture;
+  // material.transparent = true;
+  // material.opacity = 0.4;
+  // material.map = doorColorTexture;
+  // material.color.set("green");
+  // material.wireframe = true;
+
+  // const material = new THREE.MeshMatcapMaterial();
+  // material.matcap = matcapTexture;
+
+  // const material = new THREE.MeshDepthMaterial();
+
+  // const material = new THREE.MeshLambertMaterial();
+
+  // const material = new THREE.MeshPhongMaterial();
+  // material.specular = new THREE.Color("red");
+  // material.shininess = 1000;
+
+  // const material = new THREE.MeshToonMaterial();
+  // material.gradientMap = gradientTexture;
+
+  // const material = new THREE.MeshStandardMaterial();
+  // material.displacementMap = doorHeightTexture;
+  // material.metalnessMap = doorMetalnessTexture;
+  // material.map = doorColorTexture;
+  // material.aoMap = doorOcclusionTexture;
+  // material.aoMapIntensity = 2;
+  // material.displacementScale = 0.05;
+  // material.roughnessMap = doorRoughnessTexture;
+  // material.metalnessMap = doorMetalnessTexture;
+  // material.normalMap = doorNormalTexture;
+  // material.alphaMap = doorAlphaTexture;
+  // material.transparent = true;
+
+  const material = new THREE.MeshStandardMaterial();
+  material.envMap = environmentTexture;
+  material.metalness = 0.7;
+  material.roughness = 0.2;
+
+  gui.add(material, "roughness").min(0).max(1).step(0.0001);
+  gui.add(material, "metalness").min(0).max(1).step(0.0001);
+  gui.add(material, "displacementScale").min(0).max(1).step(0.0001);
+  gui.add(material.normalScale, "x").min(0).max(10).step(0.0001);
+  gui.add(material.normalScale, "y").min(0).max(10).step(0.0001);
 
   const sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(0.5, 16, 16),
+    new THREE.SphereGeometry(0.5, 64, 64),
     material
   );
   sphere.position.x = -1.5;
 
   const torus = new THREE.Mesh(
-    new THREE.TorusGeometry(0.3, 0.2, 16, 32),
+    new THREE.TorusGeometry(0.3, 0.2, 64, 128),
     material
   );
   torus.position.x = 1.5;
 
-  const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
+  const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1, 100, 100),
+    material
+  );
 
   scene.add(plane, torus, sphere);
 
   const camera = new THREE.PerspectiveCamera(45, sizes.aspectRatio);
+  camera.position.x = 1;
+  camera.position.y = 1;
+  camera.position.z = 2;
   scene.add(camera);
-  camera.position.z = -5;
 
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true;
@@ -99,22 +197,24 @@ function render() {
   const clock = new THREE.Clock();
   function tick() {
     animateMaterials();
+
     controls.update();
 
     renderer.render(scene, camera);
+
     window.requestAnimationFrame(tick);
   }
 
   function animateMaterials() {
     const elapsedTime = clock.getElapsedTime();
 
-    plane.rotation.y = elapsedTime * 0.1;
-    sphere.rotation.y = elapsedTime * 0.1;
-    torus.rotation.y = elapsedTime * 0.1;
+    // plane.rotation.y = elapsedTime * 0.1;
+    // sphere.rotation.y = elapsedTime * 0.1;
+    // torus.rotation.y = elapsedTime * 0.1;
 
-    plane.rotation.x = elapsedTime * 0.15;
-    sphere.rotation.x = elapsedTime * 0.15;
-    torus.rotation.x = elapsedTime * 0.15;
+    // plane.rotation.x = elapsedTime * 0.15;
+    // sphere.rotation.x = elapsedTime * 0.15;
+    // torus.rotation.x = elapsedTime * 0.15;
   }
 
   tick();
