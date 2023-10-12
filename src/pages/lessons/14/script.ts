@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RectAreaLightHelper } from "three/addons/helpers/RectAreaLightHelper.js";
 import GUI from "lil-gui";
 
 if (typeof window !== "undefined") {
@@ -53,6 +54,52 @@ function render() {
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
 
+  const pointLight = new THREE.PointLight(0xff9000, 0.5, 2, 0.5);
+  pointLight.position.set(1, 0.3, 1.5);
+  scene.add(pointLight);
+  const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5);
+  scene.add(pointLightHelper);
+
+  const hemisphereLight = new THREE.HemisphereLight(0x00ff, 0x00ff00, 0.8);
+  scene.add(hemisphereLight);
+  const hemisphereLightHelper = new THREE.HemisphereLightHelper(
+    hemisphereLight,
+    0.5
+  );
+  scene.add(hemisphereLightHelper);
+
+  const directionalLight = new THREE.DirectionalLight(0x00ffff, 0.5);
+  directionalLight.position.set(1, 0.2, 0);
+  scene.add(directionalLight);
+  const directionalLightHelper = new THREE.DirectionalLightHelper(
+    directionalLight
+  );
+  scene.add(directionalLightHelper);
+
+  const rectLight = new THREE.RectAreaLight(0x4e00ff, 2, 2, 2);
+  rectLight.position.set(-1.5, 0, 2);
+  rectLight.lookAt(new THREE.Vector3());
+  scene.add(rectLight);
+  const rectLightHelper = new RectAreaLightHelper(rectLight);
+  scene.add(rectLightHelper);
+
+  const spotLight = new THREE.SpotLight(0x78ff00, 0.5, 10, Math.PI * 0.1, 1);
+  scene.add(spotLight);
+  const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+  scene.add(spotLightHelper);
+
+  // gui.add(spotLight, "penumbra").min(0).max(1).step(0.001);
+  // gui
+  //   .add(spotLight, "angle")
+  //   .min(Math.PI * 0.1)
+  //   .max(Math.PI)
+  //   .step(0.001);
+  // scene.add(spotLight);
+
+  /**
+   * Geometries
+   */
+
   const material = new THREE.MeshStandardMaterial();
 
   const sphere = new THREE.Mesh(
@@ -74,7 +121,7 @@ function render() {
 
   const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
   plane.rotation.x = -Math.PI * 0.5;
-  plane.position.y = -0.65;
+  plane.position.y = -1;
   scene.add(plane);
 
   const camera = new THREE.PerspectiveCamera(45, sizes.aspectRatio);
