@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { RectAreaLightHelper } from "three/addons/helpers/RectAreaLightHelper.js";
 import GUI from "lil-gui";
 
 if (typeof window !== "undefined") {
@@ -24,98 +23,152 @@ function render() {
     },
   };
 
-  window.addEventListener("resize", () => {
-    // Update the sizes
-    sizes.height = window.innerHeight;
-    sizes.width = window.innerWidth;
-
-    // Update the camera
-    camera.aspect = sizes.aspectRatio;
-    camera.updateProjectionMatrix();
-
-    // Update the renderer
-    renderer.setSize(sizes.width, sizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  });
-
-  window.addEventListener("dblclick", () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      canvas.requestFullscreen();
-    }
-  });
-
   const scene = new THREE.Scene();
 
-  /**
-   * Lights
-   */
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-  gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
-  scene.add(ambientLight);
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  directionalLight.castShadow = true;
-  directionalLight.position.set(2, 2, -1);
-  gui.add(directionalLight, "intensity").min(0).max(1).step(0.001);
-  gui.add(directionalLight.position, "x").min(-5).max(5).step(0.001);
-  gui.add(directionalLight.position, "y").min(-5).max(5).step(0.001);
-  gui.add(directionalLight.position, "z").min(-5).max(5).step(0.001);
-  scene.add(directionalLight);
-
-  const directionalLightHelper = new THREE.DirectionalLightHelper(
-    directionalLight
-  );
-  scene.add(directionalLightHelper);
+  setResizeEventListeners();
+  createLights();
+  createGeometries();
+  const camera = createCamera();
+  const controls = createControls();
+  const renderer = createRenderer();
+  updateRenderer();
 
   /**
-   * Geometries
+   * Methods
    */
-
-  const material = new THREE.MeshStandardMaterial();
-  material.roughness = 0.7;
-  gui.add(material, "metalness").min(0).max(1).step(0.001);
-  gui.add(material, "roughness").min(0).max(1).step(0.001);
-
-  const sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(0.6, 32, 16),
-    material
-  );
-  sphere.castShadow = true;
-  scene.add(sphere);
-
-  const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
-  plane.receiveShadow = true;
-  plane.rotation.x = -Math.PI * 0.5;
-  plane.position.y = -1;
-  scene.add(plane);
-
-  const camera = new THREE.PerspectiveCamera(75, sizes.aspectRatio, 0.1, 100);
-  camera.position.x = 1;
-  camera.position.y = 1;
-  camera.position.z = 2;
-
-  scene.add(camera);
-
-  const controls = new OrbitControls(camera, canvas);
-  controls.enableDamping = true;
-
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-  });
-  renderer.shadowMap.enabled = true;
-
-  renderer.setSize(sizes.width, sizes.height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  function tick() {
+  function updateRenderer() {
     controls.update();
 
     renderer.render(scene, camera);
 
-    window.requestAnimationFrame(tick);
+    window.requestAnimationFrame(updateRenderer);
   }
 
-  tick();
+  function createCamera() {
+    const camera = new THREE.PerspectiveCamera(75, sizes.aspectRatio, 0.1, 100);
+    camera.position.x = 1;
+    camera.position.y = 1;
+    camera.position.z = 2;
+
+    scene.add(camera);
+
+    return camera;
+  }
+
+  function createControls() {
+    const controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+
+    return controls;
+  }
+
+  function createLights() {
+    /**
+     * Lights
+     */
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+
+    directionalLight.position.set(2, 2, -1);
+
+    directionalLight.castShadow = true;
+
+    /**
+     * Shadow map optimization
+     */
+    directionalLight.shadow.mapSize.width = 1024;
+    directionalLight.shadow.mapSize.height = 1024;
+
+    directionalLight.shadow.camera.top = 2;
+    directionalLight.shadow.camera.right = 2;
+    directionalLight.shadow.camera.bottom = -5;
+    directionalLight.shadow.camera.left = -2;
+    directionalLight.shadow.camera.near = 1;
+    directionalLight.shadow.camera.far = 6;
+
+    // directionalLight.shadow.radius = 10;
+
+    gui.add(directionalLight, "intensity").min(0).max(1).step(0.001);
+    gui.add(directionalLight.position, "x").min(-5).max(5).step(0.001);
+    gui.add(directionalLight.position, "y").min(-5).max(5).step(0.001);
+    gui.add(directionalLight.position, "z").min(-5).max(5).step(0.001);
+    scene.add(directionalLight);
+
+    const directionalLightHelper = new THREE.DirectionalLightHelper(
+      directionalLight
+    );
+    directionalLightHelper.visible = false;
+    scene.add(directionalLightHelper);
+
+    const directionalLightCameraHelper = new THREE.CameraHelper(
+      directionalLight.shadow.camera
+    );
+    directionalLightCameraHelper.visible = false;
+    scene.add(directionalLightCameraHelper);
+  }
+
+  function createRenderer() {
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+    });
+    renderer.shadowMap.enabled = true;
+
+    renderer.setSize(sizes.width, sizes.height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    return renderer;
+  }
+
+  function setResizeEventListeners() {
+    window.addEventListener("resize", () => {
+      // Update the sizes
+      sizes.height = window.innerHeight;
+      sizes.width = window.innerWidth;
+
+      // Update the camera
+      camera.aspect = sizes.aspectRatio;
+      camera.updateProjectionMatrix();
+
+      // Update the renderer
+      renderer.setSize(sizes.width, sizes.height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+
+    window.addEventListener("dblclick", () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        canvas.requestFullscreen();
+      }
+    });
+  }
+
+  function createGeometries() {
+    /**
+     * Geometries
+     */
+
+    const material = new THREE.MeshStandardMaterial();
+    material.roughness = 0.7;
+    gui.add(material, "metalness").min(0).max(1).step(0.001);
+    gui.add(material, "roughness").min(0).max(1).step(0.001);
+
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.6, 32, 16),
+      material
+    );
+    sphere.castShadow = true;
+    scene.add(sphere);
+
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
+    plane.receiveShadow = true;
+    plane.rotation.x = -Math.PI * 0.5;
+    plane.position.y = -1;
+    scene.add(plane);
+  }
 }
