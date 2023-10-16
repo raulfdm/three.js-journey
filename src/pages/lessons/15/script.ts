@@ -63,51 +63,98 @@ function render() {
   }
 
   function createLights() {
-    /**
-     * Lights
-     */
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
-    scene.add(ambientLight);
+    const DEFAULT_LIGHT_INTENSITY = 0.5;
+    renderAmbientLight();
+    renderDirectionalLight();
+    renderSpotLight();
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    function renderAmbientLight() {
+      const ambientLight = new THREE.AmbientLight(
+        0xffffff,
+        DEFAULT_LIGHT_INTENSITY
+      );
+      gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
+      scene.add(ambientLight);
+    }
 
-    directionalLight.position.set(2, 2, -1);
+    function renderDirectionalLight() {
+      const directionalLight = new THREE.DirectionalLight(
+        0xffffff,
+        DEFAULT_LIGHT_INTENSITY
+      );
 
-    directionalLight.castShadow = true;
+      directionalLight.position.set(2, 2, -1);
+      directionalLight.castShadow = true;
 
-    /**
-     * Shadow map optimization
-     */
-    directionalLight.shadow.mapSize.width = 1024;
-    directionalLight.shadow.mapSize.height = 1024;
+      /**
+       * Shadow map optimization
+       */
+      directionalLight.shadow.mapSize.width = 1024;
+      directionalLight.shadow.mapSize.height = 1024;
 
-    directionalLight.shadow.camera.top = 2;
-    directionalLight.shadow.camera.right = 2;
-    directionalLight.shadow.camera.bottom = -5;
-    directionalLight.shadow.camera.left = -2;
-    directionalLight.shadow.camera.near = 1;
-    directionalLight.shadow.camera.far = 6;
+      directionalLight.shadow.camera.top = 2;
+      directionalLight.shadow.camera.right = 2;
+      directionalLight.shadow.camera.bottom = -5;
+      directionalLight.shadow.camera.left = -2;
+      directionalLight.shadow.camera.near = 1;
+      directionalLight.shadow.camera.far = 6;
 
-    // directionalLight.shadow.radius = 10;
+      // directionalLight.shadow.radius = 10;
 
-    gui.add(directionalLight, "intensity").min(0).max(1).step(0.001);
-    gui.add(directionalLight.position, "x").min(-5).max(5).step(0.001);
-    gui.add(directionalLight.position, "y").min(-5).max(5).step(0.001);
-    gui.add(directionalLight.position, "z").min(-5).max(5).step(0.001);
-    scene.add(directionalLight);
+      gui.add(directionalLight, "intensity").min(0).max(1).step(0.001);
+      gui.add(directionalLight.position, "x").min(-5).max(5).step(0.001);
+      gui.add(directionalLight.position, "y").min(-5).max(5).step(0.001);
+      gui.add(directionalLight.position, "z").min(-5).max(5).step(0.001);
 
-    const directionalLightHelper = new THREE.DirectionalLightHelper(
-      directionalLight
-    );
-    directionalLightHelper.visible = false;
-    scene.add(directionalLightHelper);
+      const directionalLightHelper = new THREE.DirectionalLightHelper(
+        directionalLight
+      );
 
-    const directionalLightCameraHelper = new THREE.CameraHelper(
-      directionalLight.shadow.camera
-    );
-    directionalLightCameraHelper.visible = false;
-    scene.add(directionalLightCameraHelper);
+      directionalLightHelper.visible = false;
+
+      const directionalLightCameraHelper = new THREE.CameraHelper(
+        directionalLight.shadow.camera
+      );
+      directionalLightCameraHelper.visible = false;
+
+      scene.add(
+        directionalLight,
+        directionalLightHelper,
+        directionalLightCameraHelper
+      );
+    }
+
+    function renderSpotLight() {
+      const spotLight = new THREE.SpotLight(0xffffff, 5, 10, Math.PI * 0.3);
+      // enable shadow
+      spotLight.castShadow = true;
+
+      // optimizations
+      spotLight.shadow.mapSize.width = 1024;
+      spotLight.shadow.mapSize.height = 1024;
+
+      spotLight.shadow.camera.near = 1;
+      spotLight.shadow.camera.far = 6;
+      spotLight.shadow.camera.fov = 30;
+
+      spotLight.position.set(0, 2, 2);
+
+      const spotLightHelper = new THREE.SpotLightHelper(spotLight);
+      spotLightHelper.visible = false;
+
+      const spotLightCameraHelper = new THREE.CameraHelper(
+        spotLight.shadow.camera
+      );
+      // spotLightCameraHelper.visible = false;
+
+      // add everything to the scene
+      scene.add(
+        spotLight,
+        spotLight.target,
+        spotLightHelper,
+        spotLightCameraHelper
+      );
+    }
   }
 
   function createRenderer() {
