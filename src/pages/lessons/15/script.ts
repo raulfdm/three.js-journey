@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
+import bakedShadowImage from "../../../assets/textures/shadows/bakedShadow.jpg";
 
 if (typeof window !== "undefined") {
   render();
@@ -26,6 +27,7 @@ function render() {
   const scene = new THREE.Scene();
 
   setResizeEventListeners();
+  const bakedShadowTexture = createBakedShadowTexture();
   createLights();
   createGeometries();
   const camera = createCamera();
@@ -64,9 +66,11 @@ function render() {
 
   function createLights() {
     const DEFAULT_LIGHT_INTENSITY = 0.5;
+
     renderAmbientLight();
     renderDirectionalLight();
     renderSpotLight();
+    renderPointLight();
 
     function renderAmbientLight() {
       const ambientLight = new THREE.AmbientLight(
@@ -155,13 +159,43 @@ function render() {
         spotLightCameraHelper
       );
     }
+
+    function renderPointLight() {
+      const pointLight = new THREE.PointLight(0xffffff, 1);
+      pointLight.castShadow = true;
+
+      pointLight.shadow.mapSize.width = 1024;
+      pointLight.shadow.mapSize.height = 1024;
+
+      pointLight.shadow.camera.near = 0.1;
+      pointLight.shadow.camera.far = 5;
+
+      pointLight.position.set(-1, 1, 0);
+      scene.add(pointLight);
+
+      const pointLightHelper = new THREE.PointLightHelper(pointLight);
+      pointLightHelper.visible = false;
+      scene.add(pointLightHelper);
+
+      const pointLightCameraHelper = new THREE.CameraHelper(
+        pointLight.shadow.camera
+      );
+      pointLightCameraHelper.visible = false;
+      scene.add(pointLightCameraHelper);
+    }
+  }
+
+  function createBakedShadowTexture() {
+    const textureLoader = new THREE.TextureLoader();
+    const bakedShadowTexture = textureLoader.load(bakedShadowImage.src);
+    return bakedShadowTexture;
   }
 
   function createRenderer() {
     const renderer = new THREE.WebGLRenderer({
       canvas,
     });
-    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.enabled = false;
 
     renderer.setSize(sizes.width, sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -212,7 +246,12 @@ function render() {
     sphere.castShadow = true;
     scene.add(sphere);
 
-    const plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5), material);
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(5, 5),
+      new THREE.MeshBasicMaterial({
+        map: bakedShadowTexture,
+      })
+    );
     plane.receiveShadow = true;
     plane.rotation.x = -Math.PI * 0.5;
     plane.position.y = -1;
