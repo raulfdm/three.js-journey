@@ -145,7 +145,7 @@ function render() {
       const spotLightCameraHelper = new THREE.CameraHelper(
         spotLight.shadow.camera
       );
-      // spotLightCameraHelper.visible = false;
+      spotLightCameraHelper.visible = false;
 
       // add everything to the scene
       scene.add(
