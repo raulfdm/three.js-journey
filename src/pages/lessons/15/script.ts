@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
 import bakedShadowImage from "../../../assets/textures/shadows/bakedShadow.jpg";
+import simpleShadowImage from "../../../assets/textures/shadows/simpleShadow.jpg";
 
 if (typeof window !== "undefined") {
   render();
@@ -27,20 +28,32 @@ function render() {
   const scene = new THREE.Scene();
 
   setResizeEventListeners();
-  const bakedShadowTexture = createBakedShadowTexture();
+
+  const allTextures = createTextures();
   createLights();
-  createGeometries();
+  const geometries = createGeometries();
   const camera = createCamera();
   const controls = createControls();
   const renderer = createRenderer();
+  const clock = new THREE.Clock();
   updateRenderer();
 
   /**
    * Methods
    */
-  function updateRenderer() {
-    controls.update();
 
+  function updateRenderer() {
+    const elapsedTime = clock.getElapsedTime();
+    geometries.sphere.position.x = Math.cos(elapsedTime) * 1.5;
+    geometries.sphere.position.z = Math.sin(elapsedTime) * 1.5;
+    geometries.sphere.position.y = Math.abs(Math.sin(elapsedTime * 3));
+
+    geometries.shadowSphere.position.x = geometries.sphere.position.x;
+    geometries.shadowSphere.position.z = geometries.sphere.position.z;
+    geometries.shadowSphere.material.opacity =
+      (1 - geometries.sphere.position.y) * 0.3;
+
+    controls.update();
     renderer.render(scene, camera);
 
     window.requestAnimationFrame(updateRenderer);
@@ -185,10 +198,15 @@ function render() {
     }
   }
 
-  function createBakedShadowTexture() {
+  function createTextures() {
     const textureLoader = new THREE.TextureLoader();
     const bakedShadowTexture = textureLoader.load(bakedShadowImage.src);
-    return bakedShadowTexture;
+    const simpleShadowTexture = textureLoader.load(simpleShadowImage.src);
+
+    return {
+      bakedShadowTexture,
+      simpleShadowTexture,
+    };
   }
 
   function createRenderer() {
@@ -248,13 +266,32 @@ function render() {
 
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(5, 5),
-      new THREE.MeshBasicMaterial({
-        map: bakedShadowTexture,
-      })
+      material
+      // new THREE.MeshBasicMaterial({
+      //   map: bakedShadowTexture,
+      // })
     );
     plane.receiveShadow = true;
     plane.rotation.x = -Math.PI * 0.5;
-    plane.position.y = -1;
+    plane.position.y = -0.6;
     scene.add(plane);
+
+    const shadowSphere = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.5, 1.5),
+      new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        alphaMap: allTextures.simpleShadowTexture,
+      })
+    );
+    shadowSphere.rotation.x = plane.rotation.x;
+    shadowSphere.position.y = plane.position.y + 0.01;
+    scene.add(shadowSphere);
+
+    return {
+      sphere,
+      plane,
+      shadowSphere,
+    };
   }
 }
