@@ -169,30 +169,8 @@ function render() {
     door.position.y = door.geometry.parameters.height * 0.5;
     house.add(door);
 
-    const bushMaterial = new THREE.MeshStandardMaterial({
-      color: "#3FBF7F",
-    });
-    const bushGeometry = new THREE.SphereGeometry(1, 16, 16);
-
-    const bush1 = new THREE.Mesh(bushGeometry, bushMaterial);
-    bush1.scale.set(0.5, 0.5, 0.5);
-    bush1.position.set(0.8, 0.2, 2.2);
-    house.add(bush1);
-
-    const bush2 = new THREE.Mesh(bushGeometry, bushMaterial);
-    bush2.scale.set(0.25, 0.25, 0.25);
-    bush2.position.set(1.4, 0.1, 2.1);
-    house.add(bush2);
-
-    const bush3 = new THREE.Mesh(bushGeometry, bushMaterial);
-    bush3.scale.set(0.4, 0.4, 0.4);
-    bush3.position.set(-0.8, 0.1, 2.2);
-    house.add(bush3);
-
-    const bush4 = new THREE.Mesh(bushGeometry, bushMaterial);
-    bush4.scale.set(0.15, 0.15, 0.15);
-    bush4.position.set(-1, 0.05, 2.6);
-    house.add(bush4);
+    renderBushes();
+    renderGraves();
 
     // Floor
     const floor = new THREE.Mesh(
@@ -202,5 +180,97 @@ function render() {
     floor.rotation.x = -Math.PI * 0.5;
     floor.position.y = 0;
     scene.add(floor);
+
+    function renderBushes() {
+      const bushMaterial = new THREE.MeshStandardMaterial({
+        color: "#3FBF7F",
+      });
+
+      const bushes: [
+        [scaleX: number, scaleY: number, scaleZ: number],
+        [positionX: number, positionY: number, positionZ: number]
+      ][] = [
+        [
+          [0.5, 0.5, 0.5],
+          [0.8, 0.2, 2.2],
+        ],
+        [
+          [0.25, 0.25, 0.25],
+          [1.4, 0.1, 2.1],
+        ],
+        [
+          [0.4, 0.4, 0.4],
+          [-0.8, 0.1, 2.2],
+        ],
+        [
+          [0.15, 0.15, 0.15],
+          [-1, 0.05, 2.6],
+        ],
+      ];
+
+      const bushGeometry = new THREE.SphereGeometry(1, 16, 16);
+
+      for (const bushMeasures of bushes) {
+        const bush = new THREE.Mesh(bushGeometry, bushMaterial);
+        const [scale, position] = bushMeasures;
+
+        const [scaleX, scaleY, scaleZ] = scale;
+        const [positionX, positionY, positionZ] = position;
+        bush.scale.set(scaleX, scaleY, scaleZ);
+        bush.position.set(positionX, positionY, positionZ);
+        house.add(bush);
+      }
+    }
+
+    function renderGraves() {
+      const graveWidth = 0.4;
+      const graveHeight = 0.8;
+      const graveDepth = 0.2;
+
+      const graves = new THREE.Group();
+      scene.add(graves);
+
+      const graveMaterial = new THREE.MeshStandardMaterial();
+      const graveGeometry = new THREE.BoxGeometry(
+        graveWidth,
+        graveHeight,
+        graveDepth
+      );
+
+      for (let index = 0; index < 50; index++) {
+        const grave = new THREE.Mesh(graveGeometry, graveMaterial);
+
+        /**
+         * We want a random angle in a circle
+         * 1- PI is half-rotation, we want a full rotation (360)
+         * 2- random value
+         */
+        const angle = Math.PI * 2 * Math.random();
+        /**
+         * around the house radious
+         */
+        const radius = 3 + Math.random() * 6.5;
+
+        /**
+         * "* 6" is a magic number move the graves out the house area
+         */
+        const x = Math.sin(angle) * radius;
+        /**
+         * We move the object all the way up from the ground.
+         *
+         * "-0.1" is because we rotate the grave in the z axis, it needs to give
+         * the feeling it's "buried" in the ground
+         */
+        const y = graveHeight / 2 - 0.1;
+        const z = Math.cos(angle) * radius;
+
+        grave.position.set(x, y, z);
+
+        grave.rotation.z = (Math.random() - 0.5) * 0.3;
+        grave.rotation.y = (Math.random() - 0.5) * 0.3;
+
+        graves.add(grave);
+      }
+    }
   }
 }
