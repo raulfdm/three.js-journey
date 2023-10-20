@@ -2,6 +2,14 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
+import doorAlphaImage from "./assets/door/alpha.jpg";
+import doorAmbientOcclusionImage from "./assets/door/ambientOcclusion.jpg";
+import doorColorImage from "./assets/door/color.jpg";
+import doorHeightImage from "./assets/door/height.jpg";
+import doorMetalnessImage from "./assets/door/metalness.jpg";
+import doorNormalImage from "./assets/door/normal.jpg";
+import doorRoughness from "./assets/door/roughness.jpg";
+
 if (typeof window !== "undefined") {
   render();
 }
@@ -25,10 +33,12 @@ function render() {
   };
 
   const scene = new THREE.Scene();
+  const house = new THREE.Group();
 
   setResizeEventListeners();
 
-  const allTextures = createTextures();
+  createFog();
+  const textures = createTextures();
   createLights();
   const geometries = createGeometries();
   const camera = createCamera();
@@ -65,10 +75,11 @@ function render() {
   }
 
   function createLights() {
-    const defaultLightIntensity = 1;
+    const moonLightColor = "#b9d5ff";
+    const defaultLightIntensity = 0.4;
     // Ambient light
     const ambientLight = new THREE.AmbientLight(
-      "#ffffff",
+      moonLightColor,
       defaultLightIntensity
     );
     gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
@@ -76,7 +87,7 @@ function render() {
 
     // Directional light
     const moonLight = new THREE.DirectionalLight(
-      "#ffffff",
+      moonLightColor,
       defaultLightIntensity
     );
     moonLight.position.set(4, 5, -2);
@@ -85,10 +96,43 @@ function render() {
     gui.add(moonLight.position, "y").min(-5).max(5).step(0.001);
     gui.add(moonLight.position, "z").min(-5).max(5).step(0.001);
     scene.add(moonLight);
+
+    const pointLight = new THREE.PointLight("#ff7d46", 1, 7);
+    const pointLightHelper = new THREE.PointLightHelper(pointLight);
+    pointLightHelper.visible = false;
+    scene.add(pointLightHelper);
+    pointLight.position.set(0, 1.9, 2.7);
+
+    gui.add(pointLight.position, "x").step(0.01).name("point light x");
+    gui.add(pointLight.position, "y").step(0.01).name("point light y");
+    gui.add(pointLight.position, "z").step(0.01).name("point light z");
+    house.add(pointLight);
   }
 
   function createTextures() {
     const textureLoader = new THREE.TextureLoader();
+
+    const doorAlphaTexture = textureLoader.load(doorAlphaImage.src);
+    const doorAmbientOcclusionTexture = textureLoader.load(
+      doorAmbientOcclusionImage.src
+    );
+    const doorColorTexture = textureLoader.load(doorColorImage.src);
+    const doorHeightTexture = textureLoader.load(doorHeightImage.src);
+    const doorMetalnessTexture = textureLoader.load(doorMetalnessImage.src);
+    const doorNormalTexture = textureLoader.load(doorNormalImage.src);
+    const doorRoughnessTexture = textureLoader.load(doorRoughness.src);
+
+    return {
+      door: {
+        doorAlphaTexture,
+        doorAmbientOcclusionTexture,
+        doorColorTexture,
+        doorHeightTexture,
+        doorMetalnessTexture,
+        doorNormalTexture,
+        doorRoughnessTexture,
+      },
+    };
   }
 
   function createRenderer() {
@@ -99,6 +143,11 @@ function render() {
 
     renderer.setSize(sizes.width, sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    /**
+     * To stop seeing the black parts out of our scene
+     */
+    renderer.setClearColor(scene.fog!.color);
 
     return renderer;
   }
@@ -128,11 +177,10 @@ function render() {
   }
 
   function createGeometries() {
-    const house = new THREE.Group();
     scene.add(house);
 
     const walls = new THREE.Mesh(
-      new THREE.BoxGeometry(4, 2.5, 4),
+      new THREE.BoxGeometry(4, 2.1, 4),
       new THREE.MeshStandardMaterial()
     );
     /**
@@ -157,16 +205,24 @@ function render() {
     house.add(ceiling);
 
     const door = new THREE.Mesh(
-      new THREE.PlaneGeometry(1.5, 1.9, 2),
+      new THREE.PlaneGeometry(1.9, 1.9, 100, 100),
       new THREE.MeshStandardMaterial({
-        color: "#A02B2B",
+        map: textures.door.doorColorTexture,
+        transparent: true,
+        alphaMap: textures.door.doorAlphaTexture,
+        normalMap: textures.door.doorNormalTexture,
+        metalnessMap: textures.door.doorMetalnessTexture,
+        roughnessMap: textures.door.doorRoughnessTexture,
+        aoMap: textures.door.doorAmbientOcclusionTexture,
+        displacementMap: textures.door.doorHeightTexture,
+        displacementScale: 0.1,
       })
     );
     /**
      * 0.01 to avoid z-fighting
      */
     door.position.z = walls.geometry.parameters.depth * 0.5 + 0.01;
-    door.position.y = door.geometry.parameters.height * 0.5;
+    door.position.y = door.geometry.parameters.height * 0.45;
     house.add(door);
 
     renderBushes();
@@ -188,7 +244,7 @@ function render() {
 
       const bushes: [
         [scaleX: number, scaleY: number, scaleZ: number],
-        [positionX: number, positionY: number, positionZ: number]
+        [positionX: number, positionY: number, positionZ: number],
       ][] = [
         [
           [0.5, 0.5, 0.5],
@@ -272,5 +328,10 @@ function render() {
         graves.add(grave);
       }
     }
+  }
+
+  function createFog() {
+    const fog = new THREE.Fog("#262837", 2, 15);
+    scene.fog = fog;
   }
 }
