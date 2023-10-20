@@ -8,7 +8,16 @@ import doorColorImage from "./assets/door/color.jpg";
 import doorHeightImage from "./assets/door/height.jpg";
 import doorMetalnessImage from "./assets/door/metalness.jpg";
 import doorNormalImage from "./assets/door/normal.jpg";
-import doorRoughness from "./assets/door/roughness.jpg";
+import doorRoughnessImage from "./assets/door/roughness.jpg";
+import wallAmbientOcclusionImage from "./assets/bricks/ambientOcclusion.jpg";
+import wallColorImage from "./assets/bricks/color.jpg";
+import wallNormalImage from "./assets/bricks/normal.jpg";
+import wallRoughnessImage from "./assets/bricks/roughness.jpg";
+
+import grassAmbientOcclusionImage from "./assets/grass/ambientOcclusion.jpg";
+import grassColorImage from "./assets/grass/color.jpg";
+import grassNormalImage from "./assets/grass/normal.jpg";
+import grassRoughnessImage from "./assets/grass/roughness.jpg";
 
 if (typeof window !== "undefined") {
   render();
@@ -112,25 +121,53 @@ function render() {
   function createTextures() {
     const textureLoader = new THREE.TextureLoader();
 
-    const doorAlphaTexture = textureLoader.load(doorAlphaImage.src);
-    const doorAmbientOcclusionTexture = textureLoader.load(
-      doorAmbientOcclusionImage.src
+    const grassAmbientOcclusionTexture = textureLoader.load(
+      grassAmbientOcclusionImage.src
     );
-    const doorColorTexture = textureLoader.load(doorColorImage.src);
-    const doorHeightTexture = textureLoader.load(doorHeightImage.src);
-    const doorMetalnessTexture = textureLoader.load(doorMetalnessImage.src);
-    const doorNormalTexture = textureLoader.load(doorNormalImage.src);
-    const doorRoughnessTexture = textureLoader.load(doorRoughness.src);
+    grassAmbientOcclusionTexture.repeat.set(8, 8);
+    grassAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
+    grassAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
+
+    const grassColorTexture = textureLoader.load(grassColorImage.src);
+    grassColorTexture.repeat.set(8, 8);
+    grassColorTexture.wrapS = THREE.RepeatWrapping;
+    grassColorTexture.wrapT = THREE.RepeatWrapping;
+
+    const grassNormalTexture = textureLoader.load(grassNormalImage.src);
+    grassNormalTexture.repeat.set(8, 8);
+    grassNormalTexture.wrapS = THREE.RepeatWrapping;
+    grassNormalTexture.wrapT = THREE.RepeatWrapping;
+
+    const grassRoughnessTexture = textureLoader.load(grassRoughnessImage.src);
+    grassRoughnessTexture.repeat.set(8, 8);
+    grassRoughnessTexture.wrapS = THREE.RepeatWrapping;
+    grassRoughnessTexture.wrapT = THREE.RepeatWrapping;
 
     return {
       door: {
-        doorAlphaTexture,
-        doorAmbientOcclusionTexture,
-        doorColorTexture,
-        doorHeightTexture,
-        doorMetalnessTexture,
-        doorNormalTexture,
-        doorRoughnessTexture,
+        doorAlphaTexture: textureLoader.load(doorAlphaImage.src),
+        doorAmbientOcclusionTexture: textureLoader.load(
+          doorAmbientOcclusionImage.src
+        ),
+        doorColorTexture: textureLoader.load(doorColorImage.src),
+        doorHeightTexture: textureLoader.load(doorHeightImage.src),
+        doorMetalnessTexture: textureLoader.load(doorMetalnessImage.src),
+        doorNormalTexture: textureLoader.load(doorNormalImage.src),
+        doorRoughnessTexture: textureLoader.load(doorRoughnessImage.src),
+      },
+      wall: {
+        wallAmbientOcclusionTexture: textureLoader.load(
+          wallAmbientOcclusionImage.src
+        ),
+        wallColorTexture: textureLoader.load(wallColorImage.src),
+        wallNormalTexture: textureLoader.load(wallNormalImage.src),
+        wallRoughnessTexture: textureLoader.load(wallRoughnessImage.src),
+      },
+      grass: {
+        grassAmbientOcclusionTexture,
+        grassColorTexture,
+        grassNormalTexture,
+        grassRoughnessTexture,
       },
     };
   }
@@ -181,7 +218,12 @@ function render() {
 
     const walls = new THREE.Mesh(
       new THREE.BoxGeometry(4, 2.1, 4),
-      new THREE.MeshStandardMaterial()
+      new THREE.MeshStandardMaterial({
+        normalMap: textures.wall.wallNormalTexture,
+        map: textures.wall.wallColorTexture,
+        aoMap: textures.wall.wallAmbientOcclusionTexture,
+        roughnessMap: textures.wall.wallRoughnessTexture,
+      })
     );
     /**
      * \* 0.5 means half of its height (the other half is already above the floor)
@@ -231,7 +273,12 @@ function render() {
     // Floor
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(20, 20),
-      new THREE.MeshStandardMaterial({ color: "#a9c388" })
+      new THREE.MeshStandardMaterial({
+        map: textures.grass.grassColorTexture,
+        aoMap: textures.grass.grassAmbientOcclusionTexture,
+        normalMap: textures.grass.grassNormalTexture,
+        roughnessMap: textures.grass.grassRoughnessTexture,
+      })
     );
     floor.rotation.x = -Math.PI * 0.5;
     floor.position.y = 0;
@@ -239,7 +286,10 @@ function render() {
 
     function renderBushes() {
       const bushMaterial = new THREE.MeshStandardMaterial({
-        color: "#3FBF7F",
+        map: textures.grass.grassColorTexture,
+        aoMap: textures.grass.grassAmbientOcclusionTexture,
+        normalMap: textures.grass.grassNormalTexture,
+        roughnessMap: textures.grass.grassRoughnessTexture,
       });
 
       const bushes: [
