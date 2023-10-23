@@ -55,6 +55,13 @@ function render() {
   const renderer = createRenderer();
   const clock = new THREE.Clock();
 
+  /**
+   * Shadows
+   */
+  renderer.activateShadows();
+  lights.activateShadows();
+  geometries.activateShadows();
+
   updateRenderer();
 
   /**
@@ -64,24 +71,7 @@ function render() {
   function updateRenderer() {
     const elapsedTime = clock.getElapsedTime();
 
-    const ghost1Angle = elapsedTime * 0.5;
-    lights.ghosts.ghost1.position.x = Math.cos(ghost1Angle) * 4;
-    lights.ghosts.ghost1.position.z = Math.sin(ghost1Angle) * 4;
-    lights.ghosts.ghost1.position.y = Math.sin(elapsedTime * 3);
-
-    const ghost2Angle = -elapsedTime * 0.32;
-    lights.ghosts.ghost2.position.x = Math.cos(ghost2Angle) * 5;
-    lights.ghosts.ghost2.position.z = Math.sin(ghost2Angle) * 5;
-    lights.ghosts.ghost2.position.y =
-      Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5);
-
-    const ghost3Angle = -elapsedTime * 0.18;
-    lights.ghosts.ghost3.position.x =
-      Math.cos(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.32));
-    lights.ghosts.ghost3.position.z =
-      Math.sin(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.5));
-    lights.ghosts.ghost3.position.y =
-      Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5);
+    lights.animate(elapsedTime);
 
     controls.update();
     renderer.render(scene, camera);
@@ -109,6 +99,7 @@ function render() {
   function createLights() {
     const moonLightColor = "#b9d5ff";
     const defaultLightIntensity = 0.4;
+
     // Ambient light
     const ambientLight = new THREE.AmbientLight(
       moonLightColor,
@@ -129,16 +120,16 @@ function render() {
     gui.add(moonLight.position, "z").min(-5).max(5).step(0.001);
     scene.add(moonLight);
 
-    const pointLight = new THREE.PointLight("#ff7d46", 1, 7);
-    const pointLightHelper = new THREE.PointLightHelper(pointLight);
-    pointLightHelper.visible = false;
-    scene.add(pointLightHelper);
-    pointLight.position.set(0, 1.9, 2.7);
+    const doorLight = new THREE.PointLight("#ff7d46", 1, 7);
+    const doorLightHelper = new THREE.PointLightHelper(doorLight);
+    doorLightHelper.visible = false;
+    scene.add(doorLightHelper);
+    doorLight.position.set(0, 1.9, 2.7);
 
-    gui.add(pointLight.position, "x").step(0.01).name("point light x");
-    gui.add(pointLight.position, "y").step(0.01).name("point light y");
-    gui.add(pointLight.position, "z").step(0.01).name("point light z");
-    house.add(pointLight);
+    gui.add(doorLight.position, "x").step(0.01).name("point light x");
+    gui.add(doorLight.position, "y").step(0.01).name("point light y");
+    gui.add(doorLight.position, "z").step(0.01).name("point light z");
+    house.add(doorLight);
 
     const ghost1 = new THREE.PointLight("#ff00ff", 2, 3);
     scene.add(ghost1);
@@ -150,10 +141,57 @@ function render() {
     scene.add(ghost3);
 
     return {
-      ghosts: {
-        ghost1,
-        ghost2,
-        ghost3,
+      animate(elapsedTime: number) {
+        const ghost1Angle = elapsedTime * 0.5;
+        ghost1.position.x = Math.cos(ghost1Angle) * 4;
+        ghost1.position.z = Math.sin(ghost1Angle) * 4;
+        ghost1.position.y = Math.sin(elapsedTime * 3);
+
+        const ghost2Angle = -elapsedTime * 0.32;
+        ghost2.position.x = Math.cos(ghost2Angle) * 5;
+        ghost2.position.z = Math.sin(ghost2Angle) * 5;
+        ghost2.position.y =
+          Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5);
+
+        const ghost3Angle = -elapsedTime * 0.18;
+        ghost3.position.x =
+          Math.cos(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.32));
+        ghost3.position.z =
+          Math.sin(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.5));
+        ghost3.position.y =
+          Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5);
+      },
+      activateShadows() {
+        ghost1.castShadow = true;
+        ghost2.castShadow = true;
+        ghost3.castShadow = true;
+        doorLight.castShadow = true;
+        moonLight.castShadow = true;
+
+        const DEFAULT_SHADOW_MAP_SIZE = 256;
+
+        /**
+         * Optimizations
+         */
+        moonLight.shadow.mapSize.width = DEFAULT_SHADOW_MAP_SIZE;
+        moonLight.shadow.mapSize.height = DEFAULT_SHADOW_MAP_SIZE;
+        moonLight.shadow.camera.far = 15;
+
+        doorLight.shadow.mapSize.width = DEFAULT_SHADOW_MAP_SIZE;
+        doorLight.shadow.mapSize.height = DEFAULT_SHADOW_MAP_SIZE;
+        doorLight.shadow.camera.far = 7;
+
+        ghost1.shadow.mapSize.width = DEFAULT_SHADOW_MAP_SIZE;
+        ghost1.shadow.mapSize.height = DEFAULT_SHADOW_MAP_SIZE;
+        ghost1.shadow.camera.far = 7;
+
+        ghost2.shadow.mapSize.width = DEFAULT_SHADOW_MAP_SIZE;
+        ghost2.shadow.mapSize.height = DEFAULT_SHADOW_MAP_SIZE;
+        ghost2.shadow.camera.far = 7;
+
+        ghost3.shadow.mapSize.width = DEFAULT_SHADOW_MAP_SIZE;
+        ghost3.shadow.mapSize.height = DEFAULT_SHADOW_MAP_SIZE;
+        ghost3.shadow.camera.far = 7;
       },
     };
   }
@@ -226,7 +264,14 @@ function render() {
      */
     renderer.setClearColor(scene.fog!.color);
 
-    return renderer;
+    return Object.assign(renderer, {
+      activateShadows,
+    });
+
+    function activateShadows() {
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.enabled = true;
+    }
   }
 
   function setResizeEventListeners() {
@@ -307,8 +352,8 @@ function render() {
     door.position.y = door.geometry.parameters.height * 0.45;
     house.add(door);
 
-    renderBushes();
-    renderGraves();
+    const allBushes = renderBushes();
+    const allGraves = renderGraves();
 
     // Floor
     const floor = new THREE.Mesh(
@@ -356,7 +401,7 @@ function render() {
 
       const bushGeometry = new THREE.SphereGeometry(1, 16, 16);
 
-      for (const bushMeasures of bushes) {
+      const allBushes = bushes.map((bushMeasures) => {
         const bush = new THREE.Mesh(bushGeometry, bushMaterial);
         const [scale, position] = bushMeasures;
 
@@ -365,7 +410,11 @@ function render() {
         bush.scale.set(scaleX, scaleY, scaleZ);
         bush.position.set(positionX, positionY, positionZ);
         house.add(bush);
-      }
+
+        return bush;
+      });
+
+      return allBushes;
     }
 
     function renderGraves() {
@@ -383,7 +432,9 @@ function render() {
         graveDepth
       );
 
-      for (let index = 0; index < 50; index++) {
+      const allGraves = Array.from({
+        length: 50,
+      }).map(() => {
         const grave = new THREE.Mesh(graveGeometry, graveMaterial);
 
         /**
@@ -416,8 +467,21 @@ function render() {
         grave.rotation.y = (Math.random() - 0.5) * 0.3;
 
         graves.add(grave);
-      }
+        return grave;
+      });
+
+      return allGraves;
     }
+
+    return {
+      activateShadows() {
+        floor.receiveShadow = true;
+        walls.castShadow = true;
+
+        allBushes.forEach((bush) => (bush.castShadow = true));
+        allGraves.forEach((grave) => (grave.castShadow = true));
+      },
+    };
   }
 
   function createFog() {
