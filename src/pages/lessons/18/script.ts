@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
+import particle1Image from "./_assets/particles/2.png";
 
 if (typeof window !== "undefined") {
   render();
@@ -70,6 +71,11 @@ function render() {
 
   function createTextures() {
     const textureLoader = new THREE.TextureLoader();
+    const particleTexture = textureLoader.load(particle1Image.src);
+
+    return {
+      particleTexture,
+    };
   }
 
   function createRenderer() {
@@ -109,10 +115,51 @@ function render() {
   }
 
   function createGeometries() {
+    const particlesMaterial = new THREE.PointsMaterial({
+      size: 0.2,
+      sizeAttenuation: true,
+      // color: "red",
+    });
+
+    // particlesMaterial.map = textures.particleTexture;
+    particlesMaterial.alphaMap = textures.particleTexture;
+    particlesMaterial.transparent = true;
+    // particlesMaterial.alphaTest = 0.01;
+    // particlesMaterial.depthTest = false;
+    particlesMaterial.depthWrite = false;
+
+    // const particlesGeometry = new THREE.SphereGeometry(1, 32, 32);
+
+    const particlesAmount = 5000 * 3;
+    const positions = new Float32Array(particlesAmount);
+    const colors = new Float32Array(particlesAmount);
+
+    for (let index = 0; index < particlesAmount; index++) {
+      positions[index] = (Math.random() - 0.5) * 10;
+      colors[index] = Math.random();
+    }
+
+    const particlesGeometry = new THREE.BufferGeometry();
+    particlesGeometry.setAttribute(
+      "position",
+      new THREE.BufferAttribute(positions, 3)
+    );
+
+    particlesGeometry.setAttribute(
+      "color",
+      new THREE.BufferAttribute(colors, 3)
+    );
+
+    const particle = new THREE.Points(particlesGeometry, particlesMaterial);
+    particlesMaterial.vertexColors = true;
+
+    scene.add(particle);
+
     const cube = new THREE.Mesh(
-      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.BoxGeometry(),
       new THREE.MeshBasicMaterial()
     );
+
     scene.add(cube);
   }
 }
