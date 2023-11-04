@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
-import bakedShadowImage from "../../../assets/textures/shadows/bakedShadow.jpg";
-import simpleShadowImage from "../../../assets/textures/shadows/simpleShadow.jpg";
+import bakedShadowImage from "./_assets/textures/shadows/bakedShadow.jpg";
+import simpleShadowImage from "./_assets/textures/shadows/simpleShadow.jpg";
 
 if (typeof window !== "undefined") {
   render();

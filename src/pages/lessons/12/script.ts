@@ -2,23 +2,23 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
-import doorAlpha from "@/assets/textures/door/alpha.jpg";
-import doorOcclusion from "@/assets/textures/door/ambientOcclusion.jpg";
-import doorColor from "@/assets/textures/door/color.jpg";
-import doorHeight from "@/assets/textures/door/height.jpg";
-import doorMetalness from "@/assets/textures/door/metalness.jpg";
-import doorNormal from "@/assets/textures/door/normal.jpg";
-import doorRoughness from "@/assets/textures/door/roughness.jpg";
+import doorAlpha from "./_assets/textures/door/alpha.jpg";
+import doorOcclusion from "./_assets/textures/door/ambientOcclusion.jpg";
+import doorColor from "./_assets/textures/door/color.jpg";
+import doorHeight from "./_assets/textures/door/height.jpg";
+import doorMetalness from "./_assets/textures/door/metalness.jpg";
+import doorNormal from "./_assets/textures/door/normal.jpg";
+import doorRoughness from "./_assets/textures/door/roughness.jpg";
 
-import environmentPx from "@/assets/textures/environmentMaps/4/px.png";
-import environmentNx from "@/assets/textures/environmentMaps/4/nx.png";
-import environmentPy from "@/assets/textures/environmentMaps/4/py.png";
-import environmentNy from "@/assets/textures/environmentMaps/4/ny.png";
-import environmentPz from "@/assets/textures/environmentMaps/4/pz.png";
-import environmentNz from "@/assets/textures/environmentMaps/4/nz.png";
+import environmentPx from "./_assets/textures/environmentMaps/4/px.png";
+import environmentNx from "./_assets/textures/environmentMaps/4/nx.png";
+import environmentPy from "./_assets/textures/environmentMaps/4/py.png";
+import environmentNy from "./_assets/textures/environmentMaps/4/ny.png";
+import environmentPz from "./_assets/textures/environmentMaps/4/pz.png";
+import environmentNz from "./_assets/textures/environmentMaps/4/nz.png";
 
-import gradientImage from "@/assets/textures/gradients/5.jpg";
-import matcapImage from "@/assets/textures/matcaps/10.png";
+import gradientImage from "./_assets/textures/gradients/5.jpg";
+import matcapImage from "./_assets/textures/matcaps/10.png";
 
 if (typeof window !== "undefined") {
   render();

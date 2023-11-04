@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
-import doorColor from "../../../assets/textures/door/color.jpg";
+import doorColor from "./_assets/textures/door/color.jpg";
 
 if (typeof window !== "undefined") {
   render();

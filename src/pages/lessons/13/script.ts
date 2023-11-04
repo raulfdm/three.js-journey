@@ -4,7 +4,7 @@ import { Font } from "three/addons/loaders/FontLoader.js";
 import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import GUI from "lil-gui";
 import helvetikerRegularFont from "three/examples/fonts/helvetiker_regular.typeface.json";
-import matCapImage from "@/assets/textures/matcaps/10.png";
+import matCapImage from "./_assets/textures/matcaps/10.png";
 
 if (typeof window !== "undefined") {
   render();

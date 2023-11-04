@@ -7,9 +7,6 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/assets/*": [
-        "src/assets/*"
-      ],
       "@/layouts/*": [
         "src/layouts/*"
       ]
