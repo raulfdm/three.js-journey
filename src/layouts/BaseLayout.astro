@@ -1,4 +1,5 @@
 ---
+import BackHomeButton from "../ui/BackHomeButton.astro";
 export type Props = {
   title: string;
 };
@@ -15,30 +16,7 @@ const isHome = Astro.url.pathname === "/";
     <title>{Astro.props.title}</title>
   </head>
   <body class="grid place-items-center">
-    {
-      isHome ? null : (
-        <nav class="py-2 absolute left-4 top-4 bg-white p-4 rounded">
-          <a href="/" class="underline font-semibold flex flex-row gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="icon icon-tabler icon-tabler-arrow-back"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              fill="none"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M9 11l-4 4l4 4m-4 -4h11a4 4 0 0 0 0 -8h-1" />
-            </svg>
-            Home
-          </a>
-        </nav>
-      )
-    }
+    {isHome ? null : <BackHomeButton />}
 
     {
       isHome ? null : (
