@@ -37,6 +37,9 @@ function render() {
   const geometries = createGeometries();
   const clock = new THREE.Clock();
 
+  let previousTime = 0;
+  let frame = 0;
+
   updateRenderer();
 
   /**
@@ -45,21 +48,27 @@ function render() {
 
   function updateRenderer() {
     const elapsedTime = clock.getElapsedTime();
+    const deltaTime = elapsedTime - previousTime;
+
+    previousTime = elapsedTime;
 
     renderer.render(scene, camera);
     geometries.animate(elapsedTime);
-    camera.animate();
+    camera.animate(deltaTime);
 
     window.requestAnimationFrame(updateRenderer);
   }
 
   function createCamera() {
+    const cameraGroup = new THREE.Group();
+    scene.add(cameraGroup);
+
     const camera = new THREE.PerspectiveCamera(35, sizes.aspectRatio, 0.1, 100);
     camera.position.z = 6;
-    scene.add(camera);
+    cameraGroup.add(camera);
 
     return Object.assign(camera, {
-      animate() {
+      animate(deltaFrameTime: number) {
         /**
          * only the scrollY / the screen height would move
          */
@@ -67,6 +76,15 @@ function render() {
           (parameters.scrollY / sizes.height) * parameters.materialDistance;
 
         camera.position.y = -amountToScroll;
+
+        const parallaxX = parameters.cursor.x;
+        const parallaxY = -parameters.cursor.y;
+
+        cameraGroup.position.x +=
+          (parallaxX - cameraGroup.position.x) * deltaFrameTime * 2;
+
+        cameraGroup.position.y +=
+          (parallaxY - cameraGroup.position.y) * deltaFrameTime * 2;
       },
     });
   }
