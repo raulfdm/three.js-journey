@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import GUI from "lil-gui";
+import gsap from "gsap";
 import gradientImage from "./_assets/textures/gradients/3.jpg";
 
 const canvas = document.querySelector("canvas") as HTMLCanvasElement;
@@ -10,21 +11,13 @@ if (!canvas) {
 
 const gui = new GUI();
 
-const sizes = {
-  width: window.innerWidth,
-  height: window.innerHeight,
-  get aspectRatio() {
-    return sizes.width / sizes.height;
-  },
-};
-
 const scene = new THREE.Scene();
 
 setResizeEventListeners();
 setScrollEventListener();
 setCursorEventListener();
 
-const parameters = createUiParams();
+const parameters = createParameters();
 const camera = createCamera();
 const renderer = createRenderer();
 createLight();
@@ -58,7 +51,12 @@ function createCamera() {
   const cameraGroup = new THREE.Group();
   scene.add(cameraGroup);
 
-  const camera = new THREE.PerspectiveCamera(35, sizes.aspectRatio, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(
+    35,
+    parameters.sizes.aspectRatio,
+    0.1,
+    100
+  );
   camera.position.z = 6;
   cameraGroup.add(camera);
 
@@ -68,7 +66,8 @@ function createCamera() {
        * only the scrollY / the screen height would move
        */
       const amountToScroll =
-        (parameters.scrollY / sizes.height) * parameters.materialDistance;
+        (parameters.scrollY / parameters.sizes.height) *
+        parameters.materialDistance;
 
       camera.position.y = -amountToScroll;
 
@@ -101,7 +100,7 @@ function createRenderer() {
     alpha: true,
   });
 
-  renderer.setSize(sizes.width, sizes.height);
+  renderer.setSize(parameters.sizes.width, parameters.sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   return renderer;
@@ -161,14 +160,22 @@ function createGeometries() {
   scene.add(...meshes, createParticles());
 
   return {
-    animate: (elapsedTime: number) => {
-      mesh1.rotation.y = elapsedTime * 0.1;
-      mesh2.rotation.y = elapsedTime * 0.1;
-      mesh3.rotation.y = elapsedTime * 0.1;
+    animate(elapsedTime: number) {
+      // mesh1.rotation.y = elapsedTime * 0.1;
+      // mesh2.rotation.y = elapsedTime * 0.1;
+      // mesh3.rotation.y = elapsedTime * 0.1;
 
-      mesh1.rotation.x = elapsedTime * 0.12;
-      mesh2.rotation.x = elapsedTime * 0.12;
-      mesh3.rotation.x = elapsedTime * 0.12;
+      // mesh1.rotation.x = elapsedTime * 0.12;
+      // mesh2.rotation.x = elapsedTime * 0.12;
+      // mesh3.rotation.x = elapsedTime * 0.12;
+
+      console.log("DIFFERENT?");
+      if (parameters.currentSection !== parameters.previousSection) {
+        gsap.to(meshes[parameters.currentSection], {
+          duration: 1.5,
+          ease: "power2.inOut",
+        });
+      }
     },
   };
 
@@ -214,7 +221,7 @@ function createGeometries() {
   }
 }
 
-function createUiParams() {
+function createParameters() {
   type OnChangeColorCb = (color: string) => void;
 
   const observers: OnChangeColorCb[] = [];
@@ -223,6 +230,15 @@ function createUiParams() {
     materialColor: "#ffeded",
     materialDistance: 4,
     scrollY: window.scrollY,
+    previousSection: 0,
+    currentSection: 0,
+    sizes: {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      get aspectRatio() {
+        return params.sizes.width / params.sizes.height;
+      },
+    },
     cursor: {
       x: 0,
       y: 0,
@@ -261,6 +277,10 @@ function createLight() {
 function setScrollEventListener() {
   window.addEventListener("scroll", () => {
     parameters.scrollY = window.scrollY;
+    parameters.previousSection = parameters.currentSection;
+    parameters.currentSection = Math.round(
+      parameters.scrollY / parameters.sizes.height
+    );
   });
 }
 
@@ -269,7 +289,7 @@ function setCursorEventListener() {
     /**
      * -0.5 make to sure to from -0.5 to 0.5 (1 unit)
      */
-    parameters.cursor.x = event.clientX / sizes.width - 0.5;
-    parameters.cursor.y = event.clientY / sizes.height - 0.5;
+    parameters.cursor.x = event.clientX / parameters.sizes.width - 0.5;
+    parameters.cursor.y = event.clientY / parameters.sizes.height - 0.5;
   });
 }
