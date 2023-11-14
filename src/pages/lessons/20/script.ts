@@ -41,7 +41,7 @@ function updateRenderer() {
   previousTime = elapsedTime;
 
   renderer.render(scene, camera);
-  geometries.animate(elapsedTime);
+  geometries.animate(deltaTime);
   camera.animate(deltaTime);
 
   window.requestAnimationFrame(updateRenderer);
@@ -109,15 +109,15 @@ function createRenderer() {
 function setResizeEventListeners() {
   window.addEventListener("resize", () => {
     // Update the sizes
-    sizes.height = window.innerHeight;
-    sizes.width = window.innerWidth;
+    parameters.sizes.height = window.innerHeight;
+    parameters.sizes.width = window.innerWidth;
 
     // Update the camera
-    camera.aspect = sizes.aspectRatio;
+    camera.aspect = parameters.sizes.aspectRatio;
     camera.updateProjectionMatrix();
 
     // Update the renderer
-    renderer.setSize(sizes.width, sizes.height);
+    renderer.setSize(parameters.sizes.width, parameters.sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   });
 }
@@ -160,20 +160,22 @@ function createGeometries() {
   scene.add(...meshes, createParticles());
 
   return {
-    animate(elapsedTime: number) {
-      // mesh1.rotation.y = elapsedTime * 0.1;
-      // mesh2.rotation.y = elapsedTime * 0.1;
-      // mesh3.rotation.y = elapsedTime * 0.1;
+    animate(deltaTime: number) {
+      mesh1.rotation.y += deltaTime * 0.1;
+      mesh2.rotation.y += deltaTime * 0.1;
+      mesh3.rotation.y += deltaTime * 0.1;
 
-      // mesh1.rotation.x = elapsedTime * 0.12;
-      // mesh2.rotation.x = elapsedTime * 0.12;
-      // mesh3.rotation.x = elapsedTime * 0.12;
+      mesh1.rotation.x += deltaTime * 0.12;
+      mesh2.rotation.x += deltaTime * 0.12;
+      mesh3.rotation.x += deltaTime * 0.12;
 
-      console.log("DIFFERENT?");
       if (parameters.currentSection !== parameters.previousSection) {
-        gsap.to(meshes[parameters.currentSection], {
+        gsap.to(meshes[parameters.currentSection].rotation, {
           duration: 1.5,
           ease: "power2.inOut",
+          x: "+=6",
+          y: "+=3",
+          z: "+=1.5",
         });
       }
     },
