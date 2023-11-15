@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "bun run scripts/fix-lil-gui.ts && astro build",
+    "build": "bun run scripts/fix-lil-gui.ts && bun --bun astro build",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check && tsc --noEmit"

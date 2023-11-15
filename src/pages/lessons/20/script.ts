@@ -3,295 +3,299 @@ import GUI from "lil-gui";
 import gsap from "gsap";
 import gradientImage from "./_assets/textures/gradients/3.jpg";
 
-const canvas = document.querySelector("canvas") as HTMLCanvasElement;
+const isBrowser = import.meta.env.SSR === false;
 
-if (!canvas) {
-  throw new Error("No canvas found");
-}
+if (isBrowser) {
+  const canvas = document.querySelector("canvas") as HTMLCanvasElement;
 
-const gui = new GUI();
+  if (!canvas) {
+    throw new Error("No canvas found");
+  }
 
-const scene = new THREE.Scene();
+  const gui = new GUI();
 
-setResizeEventListeners();
-setScrollEventListener();
-setCursorEventListener();
+  const scene = new THREE.Scene();
 
-const parameters = createParameters();
-const camera = createCamera();
-const renderer = createRenderer();
-createLight();
-const textures = createTextures();
-const geometries = createGeometries();
-const clock = new THREE.Clock();
+  setResizeEventListeners();
+  setScrollEventListener();
+  setCursorEventListener();
 
-let previousTime = 0;
-let frame = 0;
+  const parameters = createParameters();
+  const camera = createCamera();
+  const renderer = createRenderer();
+  createLight();
+  const textures = createTextures();
+  const geometries = createGeometries();
+  const clock = new THREE.Clock();
 
-updateRenderer();
+  let previousTime = 0;
+  let frame = 0;
 
-/**
- * Methods
- */
+  updateRenderer();
 
-function updateRenderer() {
-  const elapsedTime = clock.getElapsedTime();
-  const deltaTime = elapsedTime - previousTime;
+  /**
+   * Methods
+   */
 
-  previousTime = elapsedTime;
+  function updateRenderer() {
+    const elapsedTime = clock.getElapsedTime();
+    const deltaTime = elapsedTime - previousTime;
 
-  renderer.render(scene, camera);
-  geometries.animate(deltaTime);
-  camera.animate(deltaTime);
+    previousTime = elapsedTime;
 
-  window.requestAnimationFrame(updateRenderer);
-}
+    renderer.render(scene, camera);
+    geometries.animate(deltaTime);
+    camera.animate(deltaTime);
 
-function createCamera() {
-  const cameraGroup = new THREE.Group();
-  scene.add(cameraGroup);
+    window.requestAnimationFrame(updateRenderer);
+  }
 
-  const camera = new THREE.PerspectiveCamera(
-    35,
-    parameters.sizes.aspectRatio,
-    0.1,
-    100
-  );
-  camera.position.z = 6;
-  cameraGroup.add(camera);
+  function createCamera() {
+    const cameraGroup = new THREE.Group();
+    scene.add(cameraGroup);
 
-  return Object.assign(camera, {
-    animate(deltaFrameTime: number) {
-      /**
-       * only the scrollY / the screen height would move
-       */
-      const amountToScroll =
-        (parameters.scrollY / parameters.sizes.height) *
-        parameters.materialDistance;
+    const camera = new THREE.PerspectiveCamera(
+      35,
+      parameters.sizes.aspectRatio,
+      0.1,
+      100
+    );
+    camera.position.z = 6;
+    cameraGroup.add(camera);
 
-      camera.position.y = -amountToScroll;
+    return Object.assign(camera, {
+      animate(deltaFrameTime: number) {
+        /**
+         * only the scrollY / the screen height would move
+         */
+        const amountToScroll =
+          (parameters.scrollY / parameters.sizes.height) *
+          parameters.materialDistance;
 
-      const parallaxX = parameters.cursor.x;
-      const parallaxY = -parameters.cursor.y;
+        camera.position.y = -amountToScroll;
 
-      cameraGroup.position.x +=
-        (parallaxX - cameraGroup.position.x) * deltaFrameTime * 2;
+        const parallaxX = parameters.cursor.x;
+        const parallaxY = -parameters.cursor.y;
 
-      cameraGroup.position.y +=
-        (parallaxY - cameraGroup.position.y) * deltaFrameTime * 2;
-    },
-  });
-}
+        cameraGroup.position.x +=
+          (parallaxX - cameraGroup.position.x) * deltaFrameTime * 2;
 
-function createTextures() {
-  const textureLoader = new THREE.TextureLoader();
+        cameraGroup.position.y +=
+          (parallaxY - cameraGroup.position.y) * deltaFrameTime * 2;
+      },
+    });
+  }
 
-  const gradientTexture = textureLoader.load(gradientImage.src);
-  gradientTexture.magFilter = THREE.NearestFilter;
+  function createTextures() {
+    const textureLoader = new THREE.TextureLoader();
 
-  return {
-    gradientTexture,
-  };
-}
+    const gradientTexture = textureLoader.load(gradientImage.src);
+    gradientTexture.magFilter = THREE.NearestFilter;
 
-function createRenderer() {
-  const renderer = new THREE.WebGLRenderer({
-    canvas,
-    alpha: true,
-  });
+    return {
+      gradientTexture,
+    };
+  }
 
-  renderer.setSize(parameters.sizes.width, parameters.sizes.height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  function createRenderer() {
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+    });
 
-  return renderer;
-}
-
-function setResizeEventListeners() {
-  window.addEventListener("resize", () => {
-    // Update the sizes
-    parameters.sizes.height = window.innerHeight;
-    parameters.sizes.width = window.innerWidth;
-
-    // Update the camera
-    camera.aspect = parameters.sizes.aspectRatio;
-    camera.updateProjectionMatrix();
-
-    // Update the renderer
     renderer.setSize(parameters.sizes.width, parameters.sizes.height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  });
-}
 
-function createGeometries() {
-  const baseX = 2;
+    return renderer;
+  }
 
-  const sharedMaterial = new THREE.MeshToonMaterial({
-    gradientMap: textures.gradientTexture,
-    color: parameters.materialColor,
-  });
+  function setResizeEventListeners() {
+    window.addEventListener("resize", () => {
+      // Update the sizes
+      parameters.sizes.height = window.innerHeight;
+      parameters.sizes.width = window.innerWidth;
 
-  parameters.setOnColorChange((nextColor: string) => {
-    sharedMaterial.color.set(nextColor);
-  });
+      // Update the camera
+      camera.aspect = parameters.sizes.aspectRatio;
+      camera.updateProjectionMatrix();
 
-  const mesh1 = new THREE.Mesh(
-    new THREE.TorusGeometry(1, 0.4, 16, 60),
-    sharedMaterial
-  );
-  mesh1.position.y = -parameters.materialDistance * 0;
-  mesh1.position.x = -baseX;
+      // Update the renderer
+      renderer.setSize(parameters.sizes.width, parameters.sizes.height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    });
+  }
 
-  const mesh2 = new THREE.Mesh(
-    new THREE.ConeGeometry(1, 2, 32),
-    sharedMaterial
-  );
-  mesh2.position.y = -parameters.materialDistance * 1;
-  mesh2.position.x = baseX;
+  function createGeometries() {
+    const baseX = 2;
 
-  const mesh3 = new THREE.Mesh(
-    new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
-    sharedMaterial
-  );
-  mesh3.position.y = -parameters.materialDistance * 2;
-  mesh3.position.x = -baseX;
-
-  const meshes = [mesh1, mesh2, mesh3];
-
-  scene.add(...meshes, createParticles());
-
-  return {
-    animate(deltaTime: number) {
-      mesh1.rotation.y += deltaTime * 0.1;
-      mesh2.rotation.y += deltaTime * 0.1;
-      mesh3.rotation.y += deltaTime * 0.1;
-
-      mesh1.rotation.x += deltaTime * 0.12;
-      mesh2.rotation.x += deltaTime * 0.12;
-      mesh3.rotation.x += deltaTime * 0.12;
-
-      if (parameters.currentSection !== parameters.previousSection) {
-        gsap.to(meshes[parameters.currentSection].rotation, {
-          duration: 1.5,
-          ease: "power2.inOut",
-          x: "+=6",
-          y: "+=3",
-          z: "+=1.5",
-        });
-      }
-    },
-  };
-
-  function createParticles() {
-    const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.02,
-      sizeAttenuation: true,
+    const sharedMaterial = new THREE.MeshToonMaterial({
+      gradientMap: textures.gradientTexture,
       color: parameters.materialColor,
     });
 
-    particlesMaterial.depthWrite = false;
-
-    const particlesAmount = 200 * 3;
-    const particlesPosition = new Float32Array(particlesAmount);
-
-    for (let index = 0; index < particlesAmount; index++) {
-      const xIndex = index * 3 + 0;
-      const yIndex = index * 3 + 1;
-      const zIndex = index * 3 + 2;
-
-      const maxHeightPosition = parameters.materialDistance * meshes.length;
-
-      particlesPosition[xIndex] = (Math.random() - 0.5) * 10;
-      particlesPosition[yIndex] =
-        parameters.materialDistance * 0.5 - Math.random() * maxHeightPosition;
-      particlesPosition[zIndex] = (Math.random() - 0.5) * 10;
-    }
-
-    const particlesGeometry = new THREE.BufferGeometry();
-    particlesGeometry.setAttribute(
-      "position",
-      new THREE.BufferAttribute(particlesPosition, 3)
-    );
-
-    /**
-     * Subscribe to the color change to force
-     */
     parameters.setOnColorChange((nextColor: string) => {
-      particlesMaterial.color.set(nextColor);
+      sharedMaterial.color.set(nextColor);
     });
 
-    return new THREE.Points(particlesGeometry, particlesMaterial);
-  }
-}
+    const mesh1 = new THREE.Mesh(
+      new THREE.TorusGeometry(1, 0.4, 16, 60),
+      sharedMaterial
+    );
+    mesh1.position.y = -parameters.materialDistance * 0;
+    mesh1.position.x = -baseX;
 
-function createParameters() {
-  type OnChangeColorCb = (color: string) => void;
+    const mesh2 = new THREE.Mesh(
+      new THREE.ConeGeometry(1, 2, 32),
+      sharedMaterial
+    );
+    mesh2.position.y = -parameters.materialDistance * 1;
+    mesh2.position.x = baseX;
 
-  const observers: OnChangeColorCb[] = [];
+    const mesh3 = new THREE.Mesh(
+      new THREE.TorusKnotGeometry(0.8, 0.35, 100, 16),
+      sharedMaterial
+    );
+    mesh3.position.y = -parameters.materialDistance * 2;
+    mesh3.position.x = -baseX;
 
-  const params = {
-    materialColor: "#ffeded",
-    materialDistance: 4,
-    scrollY: window.scrollY,
-    previousSection: 0,
-    currentSection: 0,
-    sizes: {
-      width: window.innerWidth,
-      height: window.innerHeight,
-      get aspectRatio() {
-        return params.sizes.width / params.sizes.height;
+    const meshes = [mesh1, mesh2, mesh3];
+
+    scene.add(...meshes, createParticles());
+
+    return {
+      animate(deltaTime: number) {
+        mesh1.rotation.y += deltaTime * 0.1;
+        mesh2.rotation.y += deltaTime * 0.1;
+        mesh3.rotation.y += deltaTime * 0.1;
+
+        mesh1.rotation.x += deltaTime * 0.12;
+        mesh2.rotation.x += deltaTime * 0.12;
+        mesh3.rotation.x += deltaTime * 0.12;
+
+        if (parameters.currentSection !== parameters.previousSection) {
+          gsap.to(meshes[parameters.currentSection].rotation, {
+            duration: 1.5,
+            ease: "power2.inOut",
+            x: "+=6",
+            y: "+=3",
+            z: "+=1.5",
+          });
+        }
       },
-    },
-    cursor: {
-      x: 0,
-      y: 0,
-    },
-  };
+    };
 
-  const colorHandlers = gui.addColor(params, "materialColor");
-
-  colorHandlers.onChange((color: string) => {
-    params.materialColor = color;
-  });
-
-  return Object.assign(params, {
-    setOnColorChange: (cb: OnChangeColorCb) => {
-      observers.push(cb);
-
-      colorHandlers.onChange((color: string) => {
-        observers.forEach((observer) => observer(color));
+    function createParticles() {
+      const particlesMaterial = new THREE.PointsMaterial({
+        size: 0.02,
+        sizeAttenuation: true,
+        color: parameters.materialColor,
       });
 
-      return () => {
-        const index = observers.indexOf(cb);
-        observers.splice(index, 1);
-      };
-    },
-  });
-}
+      particlesMaterial.depthWrite = false;
 
-function createLight() {
-  const directionalLight = new THREE.DirectionalLight("#ffffff", 3);
-  directionalLight.position.set(1, 1, 0);
+      const particlesAmount = 200 * 3;
+      const particlesPosition = new Float32Array(particlesAmount);
 
-  scene.add(directionalLight);
-}
+      for (let index = 0; index < particlesAmount; index++) {
+        const xIndex = index * 3 + 0;
+        const yIndex = index * 3 + 1;
+        const zIndex = index * 3 + 2;
 
-function setScrollEventListener() {
-  window.addEventListener("scroll", () => {
-    parameters.scrollY = window.scrollY;
-    parameters.previousSection = parameters.currentSection;
-    parameters.currentSection = Math.round(
-      parameters.scrollY / parameters.sizes.height
-    );
-  });
-}
+        const maxHeightPosition = parameters.materialDistance * meshes.length;
 
-function setCursorEventListener() {
-  window.addEventListener("mousemove", (event) => {
-    /**
-     * -0.5 make to sure to from -0.5 to 0.5 (1 unit)
-     */
-    parameters.cursor.x = event.clientX / parameters.sizes.width - 0.5;
-    parameters.cursor.y = event.clientY / parameters.sizes.height - 0.5;
-  });
+        particlesPosition[xIndex] = (Math.random() - 0.5) * 10;
+        particlesPosition[yIndex] =
+          parameters.materialDistance * 0.5 - Math.random() * maxHeightPosition;
+        particlesPosition[zIndex] = (Math.random() - 0.5) * 10;
+      }
+
+      const particlesGeometry = new THREE.BufferGeometry();
+      particlesGeometry.setAttribute(
+        "position",
+        new THREE.BufferAttribute(particlesPosition, 3)
+      );
+
+      /**
+       * Subscribe to the color change to force
+       */
+      parameters.setOnColorChange((nextColor: string) => {
+        particlesMaterial.color.set(nextColor);
+      });
+
+      return new THREE.Points(particlesGeometry, particlesMaterial);
+    }
+  }
+
+  function createParameters() {
+    type OnChangeColorCb = (color: string) => void;
+
+    const observers: OnChangeColorCb[] = [];
+
+    const params = {
+      materialColor: "#ffeded",
+      materialDistance: 4,
+      scrollY: window.scrollY,
+      previousSection: 0,
+      currentSection: 0,
+      sizes: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        get aspectRatio() {
+          return params.sizes.width / params.sizes.height;
+        },
+      },
+      cursor: {
+        x: 0,
+        y: 0,
+      },
+    };
+
+    const colorHandlers = gui.addColor(params, "materialColor");
+
+    colorHandlers.onChange((color: string) => {
+      params.materialColor = color;
+    });
+
+    return Object.assign(params, {
+      setOnColorChange: (cb: OnChangeColorCb) => {
+        observers.push(cb);
+
+        colorHandlers.onChange((color: string) => {
+          observers.forEach((observer) => observer(color));
+        });
+
+        return () => {
+          const index = observers.indexOf(cb);
+          observers.splice(index, 1);
+        };
+      },
+    });
+  }
+
+  function createLight() {
+    const directionalLight = new THREE.DirectionalLight("#ffffff", 3);
+    directionalLight.position.set(1, 1, 0);
+
+    scene.add(directionalLight);
+  }
+
+  function setScrollEventListener() {
+    window.addEventListener("scroll", () => {
+      parameters.scrollY = window.scrollY;
+      parameters.previousSection = parameters.currentSection;
+      parameters.currentSection = Math.round(
+        parameters.scrollY / parameters.sizes.height
+      );
+    });
+  }
+
+  function setCursorEventListener() {
+    window.addEventListener("mousemove", (event) => {
+      /**
+       * -0.5 make to sure to from -0.5 to 0.5 (1 unit)
+       */
+      parameters.cursor.x = event.clientX / parameters.sizes.width - 0.5;
+      parameters.cursor.y = event.clientY / parameters.sizes.height - 0.5;
+    });
+  }
 }
