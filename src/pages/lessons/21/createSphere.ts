@@ -4,9 +4,18 @@ import * as CANNON from "cannon-es";
 type CreateSphereOptions = {
   radius: number;
   texture: THREE.CubeTexture;
+  position: {
+    x: number;
+    y: number;
+    z: number;
+  };
 };
 
-export function createSphere({ radius, texture }: CreateSphereOptions) {
+export function createSphere({
+  radius,
+  texture,
+  position,
+}: CreateSphereOptions) {
   /**
    * Three.js World
    */
@@ -20,7 +29,7 @@ export function createSphere({ radius, texture }: CreateSphereOptions) {
     })
   );
   sphere.castShadow = true;
-  sphere.position.y = 0.5;
+  sphere.position.copy(position as any);
 
   /**
    * Physics World
@@ -32,6 +41,7 @@ export function createSphere({ radius, texture }: CreateSphereOptions) {
     shape: sphereShape,
     // material: materials.plasticMaterial,
   });
+  sphereBody.position.copy(position as any);
 
   sphereBody.applyLocalForce(
     new CANNON.Vec3(150, 0, 0), // when it gets rendered, force it to X axis

@@ -149,19 +149,39 @@ if (isBrowser) {
   }
 
   function createGeometries() {
-    const sphere = createSphere({
-      radius: 0.5,
-      texture: textures.environmentMapTexture,
-    });
+    const spheres = [
+      createSphere({
+        radius: 0.5,
+        texture: textures.environmentMapTexture,
+        position: {
+          x: 0,
+          z: 0,
+          y: 3,
+        },
+      }),
+      createSphere({
+        radius: 0.5,
+        texture: textures.environmentMapTexture,
+        position: {
+          x: 2,
+          z: 2,
+          y: 0,
+        },
+      }),
+    ];
 
-    scene.add(sphere.object);
-    world.addBody(sphere.body);
+    spheres.forEach((sphere) => {
+      scene.add(sphere.object);
+      world.addBody(sphere.body);
+    });
 
     const floor = createFloor({ texture: textures.environmentMapTexture });
     scene.add(floor);
 
     return {
-      sphere,
+      animateAll() {
+        spheres.forEach((sphere) => sphere.animate());
+      },
     };
   }
 
@@ -177,7 +197,7 @@ if (isBrowser) {
 
     return Object.assign(world, {
       update(deltaTime: number) {
-        geometries.sphere.animate();
+        geometries.animateAll();
         world.step(1 / 60, deltaTime, 3);
       },
     });
