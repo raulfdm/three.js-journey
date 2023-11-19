@@ -9,6 +9,7 @@ import mapNy from "./_assets/textures/environmentMaps/0/ny.png";
 import mapPz from "./_assets/textures/environmentMaps/0/pz.png";
 import mapNz from "./_assets/textures/environmentMaps/0/nz.png";
 import { createSphere } from "./createSphere";
+import { createFloor } from "./createFloor";
 
 const isBrowser = import.meta.env.SSR === false;
 
@@ -151,29 +152,16 @@ if (isBrowser) {
     const sphere = createSphere({
       radius: 0.5,
       texture: textures.environmentMapTexture,
-      world,
-      scene,
     });
 
-    function createFloor() {
-      const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, 10),
-        new THREE.MeshStandardMaterial({
-          color: "#777777",
-          metalness: 0.3,
-          roughness: 0.4,
-          envMap: textures.environmentMapTexture,
-          envMapIntensity: 0.5,
-        })
-      );
-      floor.receiveShadow = true;
-      floor.rotation.x = -Math.PI * 0.5;
-      scene.add(floor);
-    }
+    scene.add(sphere.object);
+    world.addBody(sphere.body);
+
+    const floor = createFloor({ texture: textures.environmentMapTexture });
+    scene.add(floor);
 
     return {
       sphere,
-      floor: createFloor(),
     };
   }
 

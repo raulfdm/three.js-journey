@@ -4,16 +4,9 @@ import * as CANNON from "cannon-es";
 type CreateSphereOptions = {
   radius: number;
   texture: THREE.CubeTexture;
-  world: CANNON.World;
-  scene: THREE.Scene;
 };
 
-export function createSphere({
-  radius,
-  texture,
-  world,
-  scene,
-}: CreateSphereOptions) {
+export function createSphere({ radius, texture }: CreateSphereOptions) {
   /**
    * Three.js World
    */
@@ -28,7 +21,6 @@ export function createSphere({
   );
   sphere.castShadow = true;
   sphere.position.y = 0.5;
-  scene.add(sphere);
 
   /**
    * Physics World
@@ -46,9 +38,9 @@ export function createSphere({
     new CANNON.Vec3(0, 0, 0) // at the center of the sphere
   );
 
-  world.addBody(sphereBody);
-
   return {
+    object: sphere,
+    body: sphereBody,
     animate() {
       windEffect();
 
