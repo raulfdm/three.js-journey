@@ -8,6 +8,7 @@ import mapPy from "./_assets/textures/environmentMaps/0/py.png";
 import mapNy from "./_assets/textures/environmentMaps/0/ny.png";
 import mapPz from "./_assets/textures/environmentMaps/0/pz.png";
 import mapNz from "./_assets/textures/environmentMaps/0/nz.png";
+import { createSphere } from "./createSphere";
 
 const isBrowser = import.meta.env.SSR === false;
 
@@ -147,21 +148,12 @@ if (isBrowser) {
   }
 
   function createGeometries() {
-    function createSphere() {
-      const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(0.5, 32, 32),
-        new THREE.MeshStandardMaterial({
-          metalness: 0.3,
-          roughness: 0.4,
-          envMap: textures.environmentMapTexture,
-          envMapIntensity: 0.5,
-        })
-      );
-      sphere.castShadow = true;
-      sphere.position.y = 0.5;
-      scene.add(sphere);
-      return sphere;
-    }
+    const sphere = createSphere({
+      radius: 0.5,
+      texture: textures.environmentMapTexture,
+      world,
+      scene,
+    });
 
     function createFloor() {
       const floor = new THREE.Mesh(
@@ -180,7 +172,7 @@ if (isBrowser) {
     }
 
     return {
-      sphere: createSphere(),
+      sphere,
       floor: createFloor(),
     };
   }
@@ -188,7 +180,6 @@ if (isBrowser) {
   function createWorld() {
     const world = new CANNON.World();
     createMaterial();
-    const sphere = createSphere();
     const plane = createPlane();
 
     /**
@@ -196,43 +187,12 @@ if (isBrowser) {
      */
     world.gravity.set(0, -9.82, 0);
 
-    function windEffect() {
-      sphere.applyForce(new CANNON.Vec3(-0.5, 0, 0), sphere.position);
-    }
-
     return Object.assign(world, {
       update(deltaTime: number) {
-        windEffect();
-
+        geometries.sphere.animate();
         world.step(1 / 60, deltaTime, 3);
-
-        geometries.sphere.position.set(
-          sphere.position.x,
-          sphere.position.y,
-          sphere.position.z
-        );
       },
     });
-
-    function createSphere() {
-      const sphereShape = new CANNON.Sphere(0.5);
-
-      const sphereBody = new CANNON.Body({
-        mass: 1,
-        position: new CANNON.Vec3(0, 3, 0),
-        shape: sphereShape,
-        // material: materials.plasticMaterial,
-      });
-
-      sphereBody.applyLocalForce(
-        new CANNON.Vec3(150, 0, 0), // when it gets rendered, force it to X axis
-        new CANNON.Vec3(0, 0, 0) // at the center of the sphere
-      );
-
-      world.addBody(sphereBody);
-
-      return sphereBody;
-    }
 
     function createPlane() {
       const floorShape = new CANNON.Plane();
