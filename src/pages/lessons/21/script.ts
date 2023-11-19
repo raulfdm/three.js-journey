@@ -196,8 +196,14 @@ if (isBrowser) {
      */
     world.gravity.set(0, -9.82, 0);
 
+    function windEffect() {
+      sphere.applyForce(new CANNON.Vec3(-0.5, 0, 0), sphere.position);
+    }
+
     return Object.assign(world, {
       update(deltaTime: number) {
+        windEffect();
+
         world.step(1 / 60, deltaTime, 3);
 
         geometries.sphere.position.set(
@@ -217,6 +223,11 @@ if (isBrowser) {
         shape: sphereShape,
         // material: materials.plasticMaterial,
       });
+
+      sphereBody.applyLocalForce(
+        new CANNON.Vec3(150, 0, 0), // when it gets rendered, force it to X axis
+        new CANNON.Vec3(0, 0, 0) // at the center of the sphere
+      );
 
       world.addBody(sphereBody);
 
@@ -238,29 +249,6 @@ if (isBrowser) {
 
       world.addBody(floorBody);
     }
-
-    // function createMaterials() {
-    //   const concreteMaterial = new CANNON.Material();
-    //   const plasticMaterial = new CANNON.Material();
-
-    //   // describe how both materials should behave when it interacts with each other
-    //   const concretePlasticContactMaterial = new CANNON.ContactMaterial(
-    //     concreteMaterial,
-    //     plasticMaterial,
-    //     {
-    //       friction: 0.1,
-    //       restitution: 0.7, // bounce
-    //     }
-    //   );
-
-    //   // add the contact material to the world
-    //   world.addContactMaterial(concretePlasticContactMaterial);
-
-    //   return {
-    //     concreteMaterial,
-    //     plasticMaterial,
-    //   };
-    // }
 
     function createMaterial() {
       const defaultMaterial = new CANNON.Material();
