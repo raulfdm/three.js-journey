@@ -20,6 +20,7 @@ if (isBrowser) {
     throw new Error("No canvas found");
   }
 
+  const gui = new GUI();
   const sizes = {
     width: window.innerWidth,
     height: window.innerHeight,
@@ -40,6 +41,8 @@ if (isBrowser) {
   const controls = createControls();
   const renderer = createRenderer();
   const clock = new THREE.Clock();
+
+  gui.add(geometries, "createNewSphere");
 
   /**
    * Methods
@@ -139,13 +142,13 @@ if (isBrowser) {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     });
 
-    window.addEventListener("dblclick", () => {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        canvas.requestFullscreen();
-      }
-    });
+    // window.addEventListener("dblclick", () => {
+    //   if (document.fullscreenElement) {
+    //     document.exitFullscreen();
+    //   } else {
+    //     canvas.requestFullscreen();
+    //   }
+    // });
   }
 
   function createGeometries() {
@@ -170,10 +173,7 @@ if (isBrowser) {
       }),
     ];
 
-    spheres.forEach((sphere) => {
-      scene.add(sphere.object);
-      world.addBody(sphere.body);
-    });
+    updateSpheres();
 
     const floor = createFloor({ texture: textures.environmentMapTexture });
     scene.add(floor);
@@ -182,7 +182,28 @@ if (isBrowser) {
       animateAll() {
         spheres.forEach((sphere) => sphere.animate());
       },
+      createNewSphere() {
+        const sphere = createSphere({
+          radius: Math.random() * 0.5,
+          texture: textures.environmentMapTexture,
+          position: {
+            x: (Math.random() - 0.5) * 3,
+            y: 3,
+            z: (Math.random() - 0.5) * 3,
+          },
+        });
+
+        spheres.push(sphere);
+        updateSpheres();
+      },
     };
+
+    function updateSpheres() {
+      spheres.forEach((sphere) => {
+        scene.add(sphere.object);
+        world.addBody(sphere.body);
+      });
+    }
   }
 
   function createWorld() {

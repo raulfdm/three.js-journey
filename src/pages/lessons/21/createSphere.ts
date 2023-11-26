@@ -11,6 +11,14 @@ type CreateSphereOptions = {
   };
 };
 
+const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
+const sphereMaterial = new THREE.MeshStandardMaterial({
+  metalness: 0.3,
+  roughness: 0.4,
+  // envMap: texture,
+  envMapIntensity: 0.5,
+});
+
 export function createSphere({
   radius,
   texture,
@@ -19,15 +27,18 @@ export function createSphere({
   /**
    * Three.js World
    */
-  const sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(radius, 32, 32),
-    new THREE.MeshStandardMaterial({
-      metalness: 0.3,
-      roughness: 0.4,
-      envMap: texture,
-      envMapIntensity: 0.5,
-    })
-  );
+  sphereMaterial.envMap = texture;
+
+  const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+  /**
+   * Because the sphere has a default size of 1, we scale it to the radius
+   * we want, making possible to create spheres with different sizes.
+   *
+   * This technique allow us to use the same geometry for all spheres but for
+   * different sizes.
+   */
+  sphere.scale.set(radius, radius, radius);
+
   sphere.castShadow = true;
   sphere.position.copy(position as any);
 
