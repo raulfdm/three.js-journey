@@ -63,7 +63,7 @@ export function createSphere({
     object: sphere,
     body: sphereBody,
     animate() {
-      windEffect();
+      // windEffect();
 
       sphere.position.set(
         sphereBody.position.x,
@@ -77,3 +77,5 @@ export function createSphere({
     },
   };
 }
+
+export type Sphere = ReturnType<typeof createSphere>;

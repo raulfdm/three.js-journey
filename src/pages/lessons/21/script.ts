@@ -8,8 +8,9 @@ import mapPy from "./_assets/textures/environmentMaps/0/py.png";
 import mapNy from "./_assets/textures/environmentMaps/0/ny.png";
 import mapPz from "./_assets/textures/environmentMaps/0/pz.png";
 import mapNz from "./_assets/textures/environmentMaps/0/nz.png";
-import { createSphere } from "./createSphere";
+import { createSphere, type Sphere } from "./createSphere";
 import { createFloor } from "./createFloor";
+import { createBox, type Box } from "./createBox";
 
 const isBrowser = import.meta.env.SSR === false;
 
@@ -43,6 +44,7 @@ if (isBrowser) {
   const clock = new THREE.Clock();
 
   gui.add(geometries, "createNewSphere");
+  gui.add(geometries, "createNewBox");
 
   /**
    * Methods
@@ -152,7 +154,7 @@ if (isBrowser) {
   }
 
   function createGeometries() {
-    const spheres = [
+    const geometries: (Box | Sphere)[] = [
       createSphere({
         radius: 0.5,
         texture: textures.environmentMapTexture,
@@ -162,25 +164,16 @@ if (isBrowser) {
           y: 3,
         },
       }),
-      createSphere({
-        radius: 0.5,
-        texture: textures.environmentMapTexture,
-        position: {
-          x: 2,
-          z: 2,
-          y: 0,
-        },
-      }),
     ];
 
-    updateSpheres();
+    updateGeometries();
 
     const floor = createFloor({ texture: textures.environmentMapTexture });
     scene.add(floor);
 
     return {
       animateAll() {
-        spheres.forEach((sphere) => sphere.animate());
+        geometries.forEach((sphere) => sphere.animate());
       },
       createNewSphere() {
         const sphere = createSphere({
@@ -193,13 +186,29 @@ if (isBrowser) {
           },
         });
 
-        spheres.push(sphere);
-        updateSpheres();
+        geometries.push(sphere);
+        updateGeometries();
+      },
+      createNewBox() {
+        const box = createBox({
+          position: {
+            x: (Math.random() - 0.5) * 3,
+            y: 3,
+            z: (Math.random() - 0.5) * 3,
+          },
+          width: Math.random(),
+          height: Math.random(),
+          depth: Math.random(),
+          texture: textures.environmentMapTexture,
+        });
+
+        geometries.push(box);
+        updateGeometries();
       },
     };
 
-    function updateSpheres() {
-      spheres.forEach((sphere) => {
+    function updateGeometries() {
+      geometries.forEach((sphere) => {
         scene.add(sphere.object);
         world.addBody(sphere.body);
       });
