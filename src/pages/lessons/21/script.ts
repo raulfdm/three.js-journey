@@ -8,9 +8,13 @@ import mapPy from "./_assets/textures/environmentMaps/0/py.png";
 import mapNy from "./_assets/textures/environmentMaps/0/ny.png";
 import mapPz from "./_assets/textures/environmentMaps/0/pz.png";
 import mapNz from "./_assets/textures/environmentMaps/0/nz.png";
+<<<<<<< Updated upstream
 import { createSphere, type Sphere } from "./createSphere";
 import { createFloor } from "./createFloor";
 import { createBox, type Box } from "./createBox";
+=======
+import * as CANNON from "cannon-es";
+>>>>>>> Stashed changes
 
 const isBrowser = import.meta.env.SSR === false;
 
@@ -34,7 +38,13 @@ if (isBrowser) {
 
   setResizeEventListeners();
 
+<<<<<<< Updated upstream
   const world = createWorld();
+=======
+  const world = new CANNON.World();
+  world.gravity.set(0, -9.82, 0);
+
+>>>>>>> Stashed changes
   const textures = createTextures();
   const lights = createLights();
   const geometries = createGeometries();
@@ -43,12 +53,19 @@ if (isBrowser) {
   const renderer = createRenderer();
   const clock = new THREE.Clock();
 
+<<<<<<< Updated upstream
   gui.add(geometries, "createNewSphere");
   gui.add(geometries, "createNewBox");
+=======
+  let previousElapsedTime = 0;
+
+  updateRenderer();
+>>>>>>> Stashed changes
 
   /**
    * Methods
    */
+<<<<<<< Updated upstream
 
   let oldElapsedTime = 0;
 
@@ -59,6 +76,18 @@ if (isBrowser) {
     oldElapsedTime = elapsedTime;
 
     world.update(deltaTime);
+=======
+  function updateRenderer() {
+    const elapsedTime = clock.getElapsedTime();
+    const deltaTime = elapsedTime - previousElapsedTime;
+    previousElapsedTime = elapsedTime;
+
+    world.step(1 / 60, deltaTime, 3);
+
+    geometries.sphere.mesh.position.copy(
+      geometries.sphere.body.position as any
+    );
+>>>>>>> Stashed changes
 
     controls.update();
     renderer.render(scene, camera);
@@ -68,7 +97,7 @@ if (isBrowser) {
 
   function createCamera() {
     const camera = new THREE.PerspectiveCamera(75, sizes.aspectRatio, 0.1, 100);
-    camera.position.set(-3, 3, 3);
+    camera.position.set(-6, 6, 6);
     scene.add(camera);
 
     return camera;
@@ -154,6 +183,7 @@ if (isBrowser) {
   }
 
   function createGeometries() {
+<<<<<<< Updated upstream
     const geometries: (Box | Sphere)[] = [
       createSphere({
         radius: 0.5,
@@ -205,6 +235,86 @@ if (isBrowser) {
         geometries.push(box);
         updateGeometries();
       },
+=======
+    const defaultMaterial = new CANNON.Material("defaultMaterial");
+
+    const defaultContactMaterial = new CANNON.ContactMaterial(
+      defaultMaterial,
+      defaultMaterial,
+      {
+        friction: 0.1,
+        restitution: 0.7,
+      }
+    );
+    world.defaultContactMaterial = defaultContactMaterial;
+
+    function createSphere() {
+      const sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(0.5, 32, 32),
+        new THREE.MeshStandardMaterial({
+          metalness: 0.3,
+          roughness: 0.4,
+          envMap: textures.environmentMapTexture,
+          envMapIntensity: 0.5,
+        })
+      );
+      sphere.castShadow = true;
+      sphere.position.y = 0.5;
+      scene.add(sphere);
+
+      const sphereShape = new CANNON.Sphere(0.5);
+      const sphereBody = new CANNON.Body({
+        mass: 1,
+        position: new CANNON.Vec3(0, 3, 0),
+        shape: sphereShape,
+      });
+
+      sphereBody.applyLocalForce(
+        new CANNON.Vec3(150, 0, 0),
+        new CANNON.Vec3(0, 0, 0)
+      );
+
+      world.addBody(sphereBody);
+
+      return {
+        mesh: sphere,
+        body: sphereBody,
+      };
+    }
+
+    function createFloor() {
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(10, 10),
+        new THREE.MeshStandardMaterial({
+          color: "#777777",
+          metalness: 0.3,
+          roughness: 0.4,
+          envMap: textures.environmentMapTexture,
+          envMapIntensity: 0.5,
+        })
+      );
+      floor.receiveShadow = true;
+      floor.rotation.x = -Math.PI * 0.5;
+      scene.add(floor);
+
+      const floorShape = new CANNON.Plane();
+      const floorBody = new CANNON.Body({
+        mass: 0,
+        shape: floorShape,
+      });
+
+      floorBody.quaternion.setFromAxisAngle(
+        new CANNON.Vec3(-1, 0, 0),
+        Math.PI * 0.5
+      );
+
+      world.addBody(floorBody);
+    }
+
+    return {
+      sphere: createSphere(),
+      floor: createFloor(),
+>>>>>>> Stashed changes
     };
 
     function updateGeometries() {
